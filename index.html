@@ -1,0 +1,3376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phyto-Analyser - Dashboard Expert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* --- Variables & Global Styles --- */
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #141929;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-primary: #e0e6ed;
+            --text-secondary: #a0a9b8;
+            --accent-cyan: #00d4ff;
+            --accent-magenta: #ff00d4;
+            --accent-purple: #8b5cf6;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* --- Top Search Bar --- */
+        .top-header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* --- Main Layout --- */
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 70px); /* Adjust height for top header */
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            flex: 0 0 280px;
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            position: absolute;
+            z-index: 100;
+            height: 100%;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-group {
+            margin-bottom: 2rem;
+        }
+
+        .filter-group h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .filter-option input[type="checkbox"] {
+            margin-right: 0.75rem;
+            cursor: pointer;
+            accent-color: var(--accent-cyan);
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sub-header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .btn-secondary.active {
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            color: var(--bg-primary);
+            border-color: transparent;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #plant-gallery, #comparison-container, #lab-container {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        #plant-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        #comparison-container, #lab-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 2rem;
+        }
+
+        .view-section {
+            display: none;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        /* --- Plant Card (Gallery) --- */
+        .plant-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .plant-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .card-title p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        .icon-btn:hover { color: var(--accent-cyan); }
+        .icon-btn.active { color: var(--accent-magenta); }
+
+        .card-body {
+            flex-grow: 1;
+        }
+        .card-body p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .radar-chart-container {
+            height: 150px;
+            margin-bottom: 1rem;
+        }
+
+        .card-footer .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent-cyan);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        /* --- Detail Card (Comparison & Lab) --- */
+        .detail-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .detail-card .latin-name {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .detail-card-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 500px;
+            padding-right: 0.5rem;
+        }
+        .detail-card-content::-webkit-scrollbar { width: 6px; }
+        .detail-card-content::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 3px; }
+        .detail-card-content::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 3px; }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        .detail-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .detail-section p, .detail-section li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .detail-section ul { list-style: none; padding-left: 0; }
+        .detail-section li { margin-bottom: 0.5rem; position: relative; padding-left: 20px; }
+        .detail-section li::before { content: '▸'; position: absolute; left: 0; color: var(--accent-magenta); font-weight: bold; }
+        .evidence-bar { width: 100%; background-color: var(--bg-card); border-radius: 10px; overflow: hidden; margin-top: 0.5rem; }
+        .evidence-level { height: 8px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); transition: width 0.6s ease; }
+
+        /* --- Modal --- */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(10, 14, 26, 0.8); backdrop-filter: blur(5px); animation: fadeIn 0.4s; }
+        .modal-content { background-color: var(--bg-secondary); margin: 3% auto; padding: 2rem; border: 1px solid var(--border-color); border-radius: 16px; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; animation: slideIn 0.4s; }
+        .close-btn { color: var(--text-secondary); position: absolute; top: 20px; right: 30px; font-size: 40px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: var(--text-primary); }
+        .modal-body h2 { font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(45deg, var(--accent-cyan), var(--accent-magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .modal-body .latin-name { font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 1.5rem; font-family: 'Roboto Mono', monospace; }
+        .modal-section { margin-bottom: 2rem; }
+        .modal-section h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--accent-cyan); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .modal-section p, .modal-section li { color: var(--text-secondary); }
+        .modal-section ul { list-style: none; padding-left: 0; }
+        .modal-section li { margin-bottom: 0.8rem; position: relative; padding-left: 25px; }
+        .modal-section li::before { content: '▸'; position: absolute; left: 0; color: var(--accent-magenta); font-weight: bold; }
+        
+        /* --- Placeholders --- */
+        .lab-placeholder {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { flex: none; width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .sub-header { flex-direction: column; gap: 1rem; }
+            #comparison-container, #lab-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <input type="search" id="search-input" class="search-bar" placeholder="Rechercher par nom, propriété, composé...">
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <h2>Filtres Avancés</h2>
+            
+            <div class="filter-group">
+                <h3>Propriétés Principales</h3>
+                <div class="filter-option"><input type="checkbox" id="prop-calmante" value="calmante"><label for="prop-calmante">Calmante / Sédative</label></div>
+                <div class="filter-option"><input type="checkbox" id="prop-digestive" value="digestive"><label for="prop-digestive">Digestive</label></div>
+                <div class="filter-option"><input type="checkbox" id="prop-antiseptique" value="antiseptique"><label for="prop-antiseptique">Antiseptique</label></div>
+                <div class="filter-option"><input type="checkbox" id="prop-tonique" value="tonique"><label for="prop-tonique">Tonique / Stimulante</label></div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Niveau de Preuve</h3>
+                <div class="filter-option"><input type="checkbox" id="evidence-scientifique" value="scientifique"><label for="evidence-scientifique">Scientifique avéré</label></div>
+                <div class="filter-option"><input type="checkbox" id="evidence-traditionnel" value="traditionnel"><label for="evidence-traditionnel">Usage traditionnel</label></div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Contre-indications</h3>
+                <div class="filter-option"><input type="checkbox" id="ci-grossesse" value="grossesse"><label for="ci-grossesse">Grossesse</label></div>
+                <div class="filter-option"><input type="checkbox" id="ci-enfants" value="enfants"><label for="ci-enfants">Enfants</label></div>
+            </div>
+        </aside>
+
+        <div class="main-content-area">
+            <div class="sub-header">
+                <div class="logo">🧬 Phyto-Analyser</div>
+                <button id="toggle-sidebar-btn" class="btn btn-secondary">☰ Filtres</button>
+            </div>
+
+            <main>
+                <div class="toolbar">
+                    <div class="view-toggle">
+                        <button class="btn btn-secondary view-btn active" data-view="gallery">Galerie</button>
+                        <button class="btn btn-secondary view-btn" data-view="comparison">Comparaison (<span id="compare-count">0</span>)</button>
+                        <button class="btn btn-secondary view-btn" data-view="lab">Mon Labo (<span id="lab-count">0</span>)</button>
+                    </div>
+                </div>
+
+                <section id="gallery-view" class="view-section active">
+                    <div id="plant-gallery">
+                        <!-- Les cartes des plantes seront générées ici par JavaScript -->
+                    </div>
+                </section>
+
+                <section id="comparison-view" class="view-section">
+                    <div id="comparison-container">
+                        <!-- Les cartes de comparaison seront générées ici -->
+                    </div>
+                </section>
+
+                <section id="lab-view" class="view-section">
+                    <div id="lab-container">
+                        <!-- Les cartes du labo seront générées ici -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal pour la fiche détaillée -->
+    <div id="plant-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body">
+                <!-- Le contenu de la fiche sera injecté ici par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+       const plantsData = [
+    {
+        id: 1,
+        name: "Absinthe",
+        latinName: "Artemisia absinthium",
+        description: "Plante aromatique très amère, aux feuilles argentées. Célèbre pour la liqueur du même nom, réputée pour ses effets neuroactifs.",
+        properties: {
+            calmante: 4,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "digestif", "amer", "magie", "clairvoyance"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse", "allaitement", "neurotoxique-forte-dose"],
+        usages: {
+            "Médicinal": "Stimulant de l'appétit, digestif, vermifuge (en faible dose).",
+            "Culinaire": "Arôme pour les liqueurs et les apéritifs.",
+            "Magique": "Infusion pour stimuler la clairvoyance. Brûlée pour la purification."
+        },
+        mythology: "Consacrée à la déesse Artémis. Son nom viendrait du grec 'apsinthion', signifiant 'insalubre' en raison de son amertume.",
+        chemicalCompounds: ["Thuyone", "Absinthine", "Artémisinine"]
+    },
+    {
+        id: 2,
+        name: "Aigremoine",
+        latinName: "Agrimonia eupatoria",
+        description: "Plante des champs aux fleurs jaunes en épi et aux fruits crochus. Connue pour ses propriétés astringentes et hémostatiques.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 3
+        },
+        tags: ["médicinal", "cicatrisant", "astringent", "gorge", "magie"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["constipation"],
+        usages: {
+            "Médicinal": "Diarrhées, angines, plaies, blessures (en cataplasme).",
+            "Magique": "Placée sous l'oreiller pour un sommeil profond. Retourne les sorts."
+        },
+        mythology: "Son nom latin 'eupatoria' vient de Mithridate Eupator, roi du Pont, qui aurait découvert ses vertus.",
+        chemicalCompounds: ["Tanins", "Flavonoïdes", "Acide phénolique"]
+    },
+    {
+        id: 3,
+        name: "Ail",
+        latinName: "Allium sativum",
+        description: "Bulbe très puissant et aromatique, utilisé depuis des millénaires comme aliment et remède.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 5,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "protection", "purifiant"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["troubles-coagulation"],
+        usages: {
+            "Médicinal": "Antibiotique naturel, hypertension, cholestérol.",
+            "Culinaire": "Assaisonnement universel.",
+            "Magique": "Repousse les énergies négatives. Porté pour protection."
+        },
+        mythology: "Considéré comme une offrande aux dieux dans l'Égypte ancienne.",
+        chemicalCompounds: ["Allicine", "Diallyl disulfure", "S-allyl-cystéine"]
+    },
+    {
+        id: 4,
+        name: "Amandier",
+        latinName: "Prunus dulcis",
+        description: "Arbre fruitier dont les graines (amandes) sont riches en huile. L'amande douce est comestible, l'amande amère est toxique.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["culinaire", "cosmétique", "santé", "amour"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["amande-amère-toxique"],
+        usages: {
+            "Culinaire": "Pâtisserie, lait d'amande.",
+            "Cosmétique": "Huile d'amande douce pour les peaux sèches.",
+            "Magique": "Les amandes sont mangées pour attirer l'amour."
+        },
+        mythology: "Arbre originaire du Moyen-Orient, symbole de vigilance et de renaissance.",
+        chemicalCompounds: ["Acides gras insaturés", "Protéines", "Vitamine E", "Amygdaline"]
+    },
+    {
+        id: 5,
+        name: "Angélique",
+        latinName: "Angelica archangelica",
+        description: "Grande plante bisannuelle aromatique des régions froides. Toutes les parties sont odorantes.",
+        properties: {
+            calmante: 3,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "culinaire", "digestion", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["diabète", "photosensibilisation"],
+        usages: {
+            "Culinaire": "Tiges confites (pâtisserie).",
+            "Médicinal": "Tisane pour les digestions difficiles.",
+            "Magique": "Portée pour se protéger des sorts."
+        },
+        mythology: "Son nom vient du fait qu'elle fleurit vers le 8 mai, jour de l'archange Michel.",
+        chemicalCompounds: ["Coumarines", "Phellandrène", "Acide angélique"]
+    },
+    {
+        id: 6,
+        name: "Anis Etoilé",
+        latinName: "Illicium verum",
+        description: "Fruit en forme d'étoile d'un arbre d'Asie. Arôme puissant très proche de l'anis vert.",
+        properties: {
+            calmante: 2,
+            digestive: 4,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestif", "chance"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Plats asiatiques, pâtisseries, boissons.",
+            "Médicinal": "Tisane pour les digestions difficiles.",
+            "Magique": "Porté sur soi pour porter chance."
+        },
+        mythology: "Utilisé depuis des millénaires en médecine traditionnelle chinoise.",
+        chemicalCompounds: ["Anéthol", "Trans-anéthol", "Quercétine"]
+    },
+    {
+        id: 7,
+        name: "Anis vert",
+        latinName: "Pimpinella anisum",
+        description: "Plante annuelle dont les graines sont très aromatiques. L'un des plus anciens aromates connus.",
+        properties: {
+            calmante: 2,
+            digestive: 5,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestif", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Pains, pâtisseries, boissons anisées.",
+            "Médicinal": "Coliques des nourrissons, digestions lentes.",
+            "Magique": "Placé dans l'oreiller pour chasser les cauchemars."
+        },
+        mythology: "Connu des Égyptiens, des Grecs et des Romains.",
+        chemicalCompounds: ["Anéthol", "Méthylchavicol", "Flavonoïdes"]
+    },
+    {
+        id: 8,
+        name: "Armoise",
+        latinName: "Artemisia vulgaris",
+        description: "Plante aromatique aux feuilles argentées. Lien fort avec le monde féminin et les rêves.",
+        properties: {
+            calmante: 4,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "magique", "rêves", "féminité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Médicinal": "Règles douloureuses, troubles nerveux.",
+            "Magique": "Sachet sous l'oreiller pour rêves prophétiques."
+        },
+        mythology: "Consacrée à Artémis/Diane, déesse de la lune.",
+        chemicalCompounds: ["Thuyone", "Cinéole", "Coumarines"]
+    },
+    {
+        id: 9,
+        name: "Aubépine",
+        latinName: "Crataegus monogyna",
+        description: "Arbre épineux des haies, à fleurs blanches et baies rouges. Grand remède du cœur.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "cœur", "protection", "espoir"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["médicaments-cardiaques"],
+        usages: {
+            "Médicinal": "Troubles cardiaques (palpitations, angoisse), hypertension.",
+            "Magique": "Portée pour protéger contre la foudre."
+        },
+        mythology: "La couronne d'épines du Christ aurait été tressée de branches d'aubépine.",
+        chemicalCompounds: ["Flavonoïdes", "Proanthocyanidines", "Triterpènes"]
+    },
+    {
+        id: 10,
+        name: "Avoine",
+        latinName: "Avena sativa",
+        description: "Céréale très nutritive, riche en fibres. La paille est utilisée pour ses propriétés calmantes.",
+        properties: {
+            calmante: 3,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "cosmétique", "prospérité"],
+        evidenceLevel: 3,
+        evidenceType: "scientifique",
+        contraindications: ["intolérance-au-gluten"],
+        usages: {
+            "Culinaire": "Flocons d'avoine pour le porridge.",
+            "Cosmétique": "Bains à la farine d'avoine pour les peaux irritées.",
+            "Médicinal": "Extrait de paille d'avoine pour calmer le système nerveux."
+        },
+        mythology: "Associée à la prospérité et à l'abondance.",
+        chemicalCompounds: ["Glucides complexes", "Fibres (bêta-glucane)", "Avenine"]
+    },
+    {
+        id: 11,
+        name: "Basilic",
+        latinName: "Ocimum basilicum",
+        description: "Plante aromatique annuelle, riche en eugénol. Symbole d'amour et de haine selon les cultures.",
+        properties: {
+            calmante: 2,
+            digestive: 4,
+            antiseptique: 3,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "magique", "digestive"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Sauce pesto, salades.",
+            "Médicinal": "Tisane digestive, anti-stress.",
+            "Magique": "Attire l'amour et la richesse."
+        },
+        mythology: "Associé à la croix du Christ.",
+        chemicalCompounds: ["Eugénol", "Linalol", "Acide rosmarinique"]
+    },
+    {
+        id: 12,
+        name: "Baume de Gilead",
+        latinName: "Populus balsamifera",
+        description: "Bourgeons du peuplier baumier, très parfumés. Utilisés pour fabriquer une pommade aromatique.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "cosmétique", "guérison", "confort"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Pommade pour les douleurs musculaires, rhumatismes, toux.",
+            "Cosmétique": "Parfums et baumes pour la peau.",
+            "Magique": "Pour apporter réconfort et guérison."
+        },
+        mythology: "Référence biblique au 'baume de Gilead', une substance précieuse aux vertus curatives.",
+        chemicalCompounds: ["Salicine", "Populine", "Huiles essentielles"]
+    },
+    {
+        id: 13,
+        name: "Belladone",
+        latinName: "Atropa belladonna",
+        description: "Plante très toxique de la famille des solanacées. Son nom signifie 'belle dame' en italien.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "magie", "beauté"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["TOXIQUE-MORTELLE"],
+        usages: {
+            "Médicinal": "**USAGE MÉDICAL STRICT.** Antispasmodique, mydriatique.",
+            "Magique": "Utilisée dans les philtres d'amour et les potions de vol."
+        },
+        mythology: "Les dames de la Renaissance italienne s'en servaient pour dilater leurs pupilles.",
+        chemicalCompounds: ["Atropine", "Hyoscyamine", "Scopolamine"]
+    },
+    {
+        id: 14,
+        name: "Benjoin",
+        latinName: "Styrax benzoin",
+        description: "Résine aromatique obtenue en incisant l'écorce d'un arbre d'Asie du Sud-Est.",
+        properties: {
+            calmante: 3,
+            digestive: 1,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "protection", "purification"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Antiseptique cutané, expectorant.",
+            "Parfumerie": "Note de fond dans de nombreux parfums.",
+            "Magique": "Brûlé comme encens pour la purification."
+        },
+        mythology: "Utilisé depuis l'Antiquité dans les rituels religieux.",
+        chemicalCompounds: ["Acide benzoïque", "Acide cinnamique", "Vanilline"]
+    },
+    {
+        id: 15,
+        name: "Bétoine",
+        latinName: "Betonica officinalis",
+        description: "Plante des bois et des haies, jadis considérée comme une panacée.",
+        properties: {
+            calmante: 3,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "magie", "protection", "amour"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Troubles nerveux, maux de tête.",
+            "Magique": "Portée pour se protéger contre les fantômes."
+        },
+        mythology: "Son nom vient du celtique 'bew' (tête) et 'ton' (tonifier).",
+        chemicalCompounds: ["Bétonicine", "Tanins", "Flavonoïdes"]
+    },
+    {
+        id: 16,
+        name: "Blé",
+        latinName: "Triticum aestivum",
+        description: "Céréale de base de nombreuses civilisations. Le grain et la paille sont utilisés.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "fertilité", "prospérité"],
+        evidenceLevel: 3,
+        evidenceType: "scientifique",
+        contraindications: ["intolérance-au-gluten"],
+        usages: {
+            "Culinaire": "Pain, pâtes.",
+            "Médicinal": "L'herbe de blé est riche en vitamines.",
+            "Magique": "Symbolise la fertilité et l'abondance."
+        },
+        mythology: "Symbole de vie, de mort et de résurrection.",
+        chemicalCompounds: ["Gluten", "Amidon", "Fibres", "Vitamines B"]
+    },
+    {
+        id: 17,
+        name: "Bouleau",
+        latinName: "Betula pendula",
+        description: "Arbre élégant à l'écorce blanche. Sa sève est connue pour ses propriétés dépuratives.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 3,
+            tonique: 3
+        },
+        tags: ["médicinal", "dépuration", "purification", "beauté"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Cure de printemps avec la sève.",
+            "Cosmétique": "Eau de bouleau pour la peau.",
+            "Magique": "Symbole de renouveau."
+        },
+        mythology: "Arbre sacré dans les cultures nordiques.",
+        chemicalCompounds: ["Flavonoïdes", "Saponines", "Huile essentielle"]
+    },
+    {
+        id: 18,
+        name: "Bruyère",
+        latinName: "Calluna vulgaris",
+        description: "Arbrisseau des landes, couvert de petites fleurs roses ou blanches. Symbole de solitude.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "magie", "protection", "solitude"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Infusion pour les problèmes rénaux.",
+            "Magique": "Portée pour se protéger contre les agressions."
+        },
+        mythology: "Associée à la solitude et à la méditation.",
+        chemicalCompounds: ["Arbutine", "Flavonoïdes", "Quercétine"]
+    },
+    {
+        id: 19,
+        name: "Camomille",
+        latinName: "Matricaria recutita",
+        description: "Petite plante à fleurs blanches, célèbre pour ses vertus apaisantes.",
+        properties: {
+            calmante: 5,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "calmante", "sommeil", "digestion"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["allergies-composees"],
+        usages: {
+            "Médicinal": "Tisane pour l'insomnie, l'anxiété.",
+            "Cosmétique": "Shampooing pour cheveux blonds."
+        },
+        mythology: "Plante sacrée du dieu égyptien Râ.",
+        chemicalCompounds: ["Chamazulène", "Apigénine", "Bisabolol"]
+    },
+    {
+        id: 20,
+        name: "Camphrier",
+        latinName: "Cinnamomum camphora",
+        description: "Grand arbre d'Asie dont l'écorce est distillée pour obtenir le camphre.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 5,
+            tonique: 2
+        },
+        tags: ["médicinal", "purification", "cardiaque"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["femme-enceinte", "bébé"],
+        usages: {
+            "Médicinal": "En friction pour les rhumatismes.",
+            "Magique": "Brûlé pour la purification."
+        },
+        mythology: "En Asie, le camphre est brûlé lors des cérémonies.",
+        chemicalCompounds: ["Camphre", "Safrol", "Linalol"]
+    },
+    {
+        id: 21,
+        name: "Cannelier",
+        latinName: "Cinnamomum verum",
+        description: "Arbre tropical dont l'écorce est une des plus anciennes épices. Très réchauffante.",
+        properties: {
+            calmante: 1,
+            digestive: 4,
+            antiseptique: 5,
+            tonique: 4
+        },
+        tags: ["culinaire", "médicinal", "magique", "amour"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["grossesse"],
+        usages: {
+            "Culinaire": "Desserts, pains d'épices.",
+            "Médicinal": "Diabète de type 2, infections.",
+            "Magique": "Pour attirer l'argent et le succès."
+        },
+        mythology: "Considérée comme une épice digne des rois.",
+        chemicalCompounds: ["Cinnamaldéhyde", "Eugénol", "Coumarine"]
+    },
+    {
+        id: 22,
+        name: "Cèdre",
+        latinName: "Cedrus libani",
+        description: "Grand conifère à l'écorce résineuse et au bois parfumé. Symbole de force et de pérennité.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["médicinal", "encens", "protection", "spiritualité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Antiseptique des voies respiratoires (huile essentielle).",
+            "Parfumerie": "Huile de cèdre pour fixer les parfums.",
+            "Magique": "Brûlé pour la purification, la protection et la connexion spirituelle."
+        },
+        mythology: "Arbre sacré dans de nombreuses cultures, notamment chez les Sumériens et dans la Bible (forêt du Liban).",
+        chemicalCompounds: ["Cédrol", "Atlantone", "Himachalène"]
+    },
+    {
+        id: 23,
+        name: "Centaurée",
+        latinName: "Centaurium erythraea",
+        description: "Petite plante annuelle aux fleurs roses. Très amère, elle est un excellent stimulant digestif.",
+        properties: {
+            calmante: 1,
+            digestive: 5,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "digestif", "amer", "foie"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["hyperacidité-gastrique"],
+        usages: {
+            "Médicinal": "Inappétence, digestions lentes, insuffisance hépatique, anémie."
+        },
+        mythology: "Son nom vient du centaure Chiron, qui l'aurait utilisée pour guérir sa blessure.",
+        chemicalCompounds: ["Marrubine", "Gentianine", "Phytostérols"]
+    },
+    {
+        id: 24,
+        name: "Cerisier",
+        latinName: "Prunus avium",
+        description: "Arbre fruitier à fleurs printanières spectaculaires et aux fruits sucrés.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "amour", "mort"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["noyaux-toxiques"],
+        usages: {
+            "Culinaire": "Frais, en confiture, en liqueur (kirsch).",
+            "Médicinal": "Décoction de queues de cerises pour les rhumatismes et les cystites.",
+            "Magique": "Les branches fleuries portées pour attirer l'amour. Le bois sert à fabriquer des baguettes magiques."
+        },
+        mythology: "Au Japon, le cerisier en fleur (Sakura) symbolise l'éphémérité de la vie.",
+        chemicalCompounds: ["Anthocyanes", "Flavonoïdes", "Acide cyanhydrique (dans les noyaux)"]
+    },
+    {
+        id: 25,
+        name: "Chanvre Indien",
+        latinName: "Cannabis sativa",
+        description: "Plante annuelle aux usages multiples (textile, alimentaire, médicinal, récréatif).",
+        properties: {
+            calmante: 5,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "textile", "sacré", "relaxation"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["troubles-psychotiques", "grossesse"],
+        usages: {
+            "Médicinal": "Antidouleur, anti-nausée (chimio), spasticité, glaucome.",
+            "Textile": "Fibres pour les vêtements et les cordes.",
+            "Magique": "Considéré comme une plante sacrée facilitant la méditation et le contact avec le divin."
+        },
+        mythology: "Utilisé depuis des millénaires en Asie pour ses vertus médicinales et spirituelles.",
+        chemicalCompounds: ["Tétrahydrocannabinol (THC)", "Cannabidiol (CBD)", "Cannabinol (CBN)"]
+    },
+    {
+        id: 26,
+        name: "Chardon bénit",
+        latinName: "Cnicus benedictus",
+        description: "Plante annuelle épineuse aux fleurs jaunes. Très amère et stimulante.",
+        properties: {
+            calmante: 1,
+            digestive: 5,
+            antiseptique: 2,
+            tonique: 4
+        },
+        tags: ["médicinal", "digestif", "amer", "guérison"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["ulcères"],
+        usages: {
+            "Médicinal": "Troubles digestifs, manque d'appétit, fièvre, problèmes de foie.",
+            "Magique": "Porté sur soi pour se protéger de toutes les maladies et les accidents."
+        },
+        mythology: "Son nom 'bénit' vient de sa réputation à guérir presque tous les maux, comme par un miracle.",
+        chemicalCompounds: ["Cnicine", "Amarogentine", "Lactones sesquiterpéniques"]
+    },
+    {
+        id: 27,
+        name: "Chêne",
+        latinName: "Quercus robur",
+        description: "Arbre majestueux, symbole de force et de longévité. Son écorce et ses glands sont utilisés.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 3
+        },
+        tags: ["médicinal", "force", "protection", "sagesse"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["constipation"],
+        usages: {
+            "Médicinal": "Décoction d'écorce pour les hémorroïdes, les varices, les diarrhées.",
+            "Culinaire": "Glands (débarrassés de leur tanin) pour faire du pain.",
+            "Magique": "Porter un gland pour la longévité et la protection. L'écorce brûlée pour la purification."
+        },
+        mythology: "Arbre sacré de nombreux peuples (Gaulois, Grecs, Romains), associé à Zeus/Jupiter et aux druides.",
+        chemicalCompounds: ["Tanins", "Quercétine", "Acide gallique"]
+    },
+    {
+        id: 28,
+        name: "Chèvrefeuille",
+        latinName: "Lonicera periclymenum",
+        description: "Plante grimpante à fleurs parfumées, souvent blanches et jaunes.",
+        properties: {
+            calmante: 3,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "amour", "fidélité", "poésie"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["baies-toxiques"],
+        usages: {
+            "Médicinal": "Décoction de fleurs pour les toux, les bronchites, l'asthme.",
+            "Magique": "Porté pour attirer l'amour et l'argent. Les fleurs dans la maison favorisent l'harmonie."
+        },
+        mythology: "Associé à l'amour et à la fidélité dans de nombreuses légendes. Le nectar est parfois appelé 'lait de Vénus'.",
+        chemicalCompounds: ["Mucilages", "Flavonoïdes", "Saponines"]
+    },
+    {
+        id: 29,
+        name: "Chicorée",
+        latinName: "Cichorium intybus",
+        description: "Plante aux fleurs bleues. Ses racines torréfiées servent de succédané au café.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 1,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "succédané", "invisibilité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Salades (feuilles), café de chicorée (racines).",
+            "Médicinal": "Dépuratif, diurétique, stimulant de la digestion.",
+            "Magique": "Porté sur soi pour devenir invisible ou pour favoriser la faveur des grands."
+        },
+        mythology: "Dans le folklore, elle permettait de s'ouvrir les portes et de devenir invisible.",
+        chemicalCompounds: ["Inuline", "Intybine", "Lactones sesquiterpéniques"]
+    },
+    {
+        id: 30,
+        name: "Chrysanthème",
+        latinName: "Chrysanthemum indicum",
+        description: "Plante à fleurs d'automne, symbole de joie et de longévité en Asie.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "joie", "longévité", "protection"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "En Chine, les fleurs sont bues en infusion pour la tension, les maux de tête.",
+            "Magique": "Les fleurs dans la maison apportent joie et optimisme. Planté au jardin pour éloigner les esprits mauvais."
+        },
+        mythology: "En Chine, c'est la fleur du 9ème jour du 9ème mois, associée à l'immortalité.",
+        chemicalCompounds: ["Pyréthrines", "Flavonoïdes", "Huiles essentielles"]
+    },
+    {
+        id: 31,
+        name: "Citronnier",
+        latinName: "Citrus limon",
+        description: "Arbre fruitier aux agrumes acides et parfumés. Riche en vitamine C.",
+        properties: {
+            calmante: 2,
+            digestive: 4,
+            antiseptique: 5,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "purification", "amitié"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["photosensibilisation-huile"],
+        usages: {
+            "Culinaire": "Jus, zestes, assaisonnement.",
+            "Médicinal": "Antiscorbutique, stimulant hépatique, antiseptique.",
+            "Magique": "Le jus pour purifier les objets et les lieux. Les feuilles pour attirer l'amitié."
+        },
+        mythology: "Arbre originaire d'Asie, symbole de pureté et de longévité.",
+        chemicalCompounds: ["Acide citrique", "Vitamine C", "Limonène", "Citral"]
+    },
+    {
+        id: 32,
+        name: "Clou de Girofle",
+        latinName: "Syzygium aromaticum",
+        description: "Bouton floral séché d'un arbre tropical. Épice très puissante et anesthésiante.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 5,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "protection", "amour"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["femme-enceinte", "ulcères"],
+        usages: {
+            "Culinaire": "Pain d'épices, curries, vin chaud.",
+            "Médicinal": "Anesthésique local (dents maux), antiseptique, carminatif.",
+            "Magique": "Porté pour repousser les rivaux et les personnes malveillantes. Brûlé pour stopper les commérages."
+        },
+        mythology: "Les Chinois l'appelaient 'fleur de clou' et le mâchaient pour rafraîchir leur haleine devant l'empereur.",
+        chemicalCompounds: ["Eugénol", "Acide gallique", "Bêta-caryophyllène"]
+    },
+    {
+        id: 33,
+        name: "Consoude",
+        latinName: "Symphytum officinale",
+        description: "Plante vivace aux fleurs violettes. Surnommée 'la guérisseuse des os'.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["médicinal", "cicatrisant", "os", "voyages"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["toxique-foie", "grossesse"],
+        usages: {
+            "Médicinal": "Cataplasmes de racine pour les fractures, les entorses, les ecchymoses.",
+            "Magique": "Portée dans les chaussures pour assurer un voyage en toute sécurité. Pour protéger le voyageur."
+        },
+        mythology: "Son nom latin 'symphytum' vient du grec 'symphuo' (réunir), en référence à sa capacité à 'souder' les os.",
+        chemicalCompounds: ["Allantoïne", "Acide rosmarinique", "Pyrrolizidines (hépatotoxiques)"]
+    },
+    {
+        id: 34,
+        name: "Coquelicot",
+        latinName: "Papaver rhoeas",
+        description: "Plante des champs aux grandes fleurs rouges et délicates. Symbole du sommeil et du souvenir.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "sommeil", "souvenir", "rêves"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["enfants"],
+        usages: {
+            "Médicinal": "Pétales en sirop pour la toux, l'insomnie légère (surtout chez les enfants).",
+            "Magique": "Les pétales portés pour favoriser les rêves et le souvenir des vies antérieures."
+        },
+        mythology: "Associé à Déméter et à Perséphone. Devenu le symbole du souvenir des soldats morts au combat après la Première Guerre mondiale.",
+        chemicalCompounds: ["Rhoeadine", "Alcaloïdes isoquinoléiques", "Anthocyanes"]
+    },
+    {
+        id: 35,
+        name: "Coriandre",
+        latinName: "Coriandrum sativum",
+        description: "Plante annuelle dont les feuilles et les graines sont très aromatiques.",
+        properties: {
+            calmante: 2,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestion", "amour"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Graines en épice, feuilles (cilentro) en herbe aromatique.",
+            "Médicinal": "Troubles digestifs, ballonnements, perte d'appétit.",
+            "Magique": "Les graines dans un sachet pour attirer l'amour."
+        },
+        mythology: "Connue des Égyptiens et des Romains. Mentionnée dans la Bible.",
+        chemicalCompounds: ["Linalol", "Géranial", "Pinène"]
+    },
+    {
+        id: 36,
+        name: "Cumin",
+        latinName: "Cuminum cyminum",
+        description: "Plante annuelle dont les graines sont une épice chaude et aromatique.",
+        properties: {
+            calmante: 1,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestion", "fidélité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Épice pour les plats du Moyen-Orient, l'Inde, le Mexique.",
+            "Médicinal": "Carminatif, stimulant digestif, diurétique.",
+            "Magique": "Ajouté à la nourriture pour empêcher un partenaire d'être infidèle."
+        },
+        mythology: "Utilisé depuis l'Antiquité en Égypte et en Mésopotamie.",
+        chemicalCompounds: ["Cuminaldéhyde", "Thymol", "Pinène"]
+    },
+    {
+        id: 37,
+        name: "Cyprès",
+        latinName: "Cupressus sempervirens",
+        description: "Arbre conifère au port élancé, symbole de vie éternelle et de cimetière.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "deuil", "longévité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Hémorroïdes, varices, toux spasmodique (huile essentielle).",
+            "Magique": "Brûlé pour la purification, pour aider au passage des âmes. Porté pour la consolation."
+        },
+        mythology: "Associé à Pluton, dieu des Enfers, et à Hadès. Arbre des cimetières, il symbolise la mort mais aussi l'immortalité de l'âme.",
+        chemicalCompounds: ["Alpha-pinène", "Cédrol", "Camphène"]
+    },
+    {
+        id: 38,
+        name: "Damiana",
+        latinName: "Turnera diffusa",
+        description: "Arbrisseau d'Amérique Centrale, réputé pour ses effets stimulants et aphrodisiaques.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 4
+        },
+        tags: ["médicinal", "magique", "aphrodisiaque", "rêves"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Médicinal": "Fatigue, dépression légère, troubles de la libido.",
+            "Magique": "Infusion pour provoquer des rêves prophétiques. Utilisée dans les rituels d'amour."
+        },
+        mythology: "Utilisée par les Aztèques comme tonique et aphrodisiaque.",
+        chemicalCompounds: ["Cyanoglucosides", "Huiles essentielles", "Arbutine"]
+    },
+    {
+        id: 39,
+        name: "Datura",
+        latinName: "Datura stramonium",
+        description: "Plante herbacée très toxique, aux grandes fleurs en trompette blanches.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "magie", "voyages astraux"],
+        evidenceLevel: 1,
+        evidenceType: "traditionnel",
+        contraindications: ["TOXIQUE-MORTELLE"],
+        usages: {
+            "Médicinal": "**DÉCONSEILLÉ.** Jadis utilisé pour l'asthme (sous contrôle médical strict).",
+            "Magique": "Utilisée par les chamans et les sorcières pour provoquer des transes et des voyages astraux."
+        },
+        mythology: "Plante sacrée pour certaines cultures amérindiennes et hindoues, mais redoutée pour sa dangerosité.",
+        chemicalCompounds: ["Hyoscyamine", "Scopolamine", "Atropine"]
+    },
+    {
+        id: 40,
+        name: "Dictame de Crête",
+        latinName: "Dictamnus albus",
+        description: "Arbuste des garrigues méditerranéennes, dont les fleurs libèrent une huile inflammable.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "magie", "guérison", "feu"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["photosensibilisation"],
+        usages: {
+            "Médicinal": "Plaies, ulcères, maladies de peau (en usage externe).",
+            "Magique": "Plante magique par excellence, capable de guérir les maux les plus graves. Son huile est 'le feu des dieux'."
+        },
+        mythology: "Aussi appelé 'herbe aux sorcières'. On dit qu'elle peut guérir n'importe quelle maladie si on la trouve par hasard.",
+        chemicalCompounds: ["Furanocoumarines", "Dictamine", "Huile essentielle"]
+    },
+    {
+        id: 41,
+        name: "Digitale pourpre",
+        latinName: "Digitalis purpurea",
+        description: "Plante bisannuelle aux grandes clochettes pourpres. Très toxique mais à l'origine d'un médicament cardiaque majeur.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "cœur", "magie"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["TOXIQUE-MORTELLE"],
+        usages: {
+            "Médicinal": "**USAGE MÉDICAL STRICT.** Traitement de l'insuffisance cardiaque et de certains troubles du rythme.",
+            "Magique": "Consacrée aux fées et aux sorcières. Portée pour attirer l'amour mais avec grand risque."
+        },
+        mythology: "Son nom vient du doigt (digitus) en raison de la forme de ses fleurs. Connue sous le nom de 'gant de Notre-Dame'.",
+        chemicalCompounds: ["Digoxine", "Digitoxine", "Glycosides cardiaques"]
+    },
+    {
+        id: 42,
+        name: "Echinacée",
+        latinName: "Echinacea purpurea",
+        description: "Plante vivace d'Amérique du Nord aux grandes fleurs pourpres. Grand stimulant du système immunitaire.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 4
+        },
+        tags: ["médicinal", "immunité", "guérison", "force"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["maladie-auto-immune"],
+        usages: {
+            "Médicinal": "Prévention et traitement des infections (rhumes, grippe), en usage externe pour les plaies et les morsures de serpent."
+        },
+        mythology: "Utilisée par les Amérindiens des plaines comme remède universel, notamment pour les morsures de serpent et les infections.",
+        chemicalCompounds: ["Alkylamides", "Acide cichorique", "Polysaccharides"]
+    },
+    {
+        id: 43,
+        name: "Eucalyptus",
+        latinName: "Eucalyptus globulus",
+        description: "Grand arbre australien à l'écorce qui se détache en lambeaux. Son huile est très puissante.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 5,
+            tonique: 3
+        },
+        tags: ["médicinal", "purification", "respiratoire"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["enfants-haute-dose", "asthme"],
+        usages: {
+            "Médicinal": "Inhalations pour les rhumes, bronchites. Frictions pour les douleurs.",
+            "Magique": "Brûlé pour purifier un lieu et chasser les énergies négatives."
+        },
+        mythology: "Arbre sacré pour les Aborigènes d'Australie. Son nom signifie 'bien couvert'.",
+        chemicalCompounds: ["Eucalyptol (1,8-cinéole)", "Alpha-pinène"]
+    },
+    {
+        id: 44,
+        name: "Fenouil",
+        latinName: "Foeniculum vulgare",
+        description: "Plante vivace au goût anisé. Les feuilles, la tige et les graines sont comestibles.",
+        properties: {
+            calmante: 2,
+            digestive: 5,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestion"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["grossesse"],
+        usages: {
+            "Culinaire": "Légume, graines pour les pains.",
+            "Médicinal": "Ballonnements, coliques des nourrissons, stimule la lactation.",
+            "Magique": "Porté pour accroître la force."
+        },
+        mythology: "Associé à Dionysos et Prométhée. Les tiges de fenouil auraient servi à transporter le feu sacré.",
+        chemicalCompounds: ["Anéthol", "Fenchone", "Estragole"]
+    },
+    {
+        id: 45,
+        name: "Fougère Mâle",
+        latinName: "Dryopteris filix-mas",
+        description: "Grande fougère des sous-bois ombragés. Ses rhizomes sont utilisés comme vermifuge.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "purification", "amour", "protection"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["toxique-forte-dose", "grossesse"],
+        usages: {
+            "Médicinal": "Vermifuge puissant (contre le ténia et l'ascaris).",
+            "Magique": "Les spores brûlées pour exorciser les esprits. Portée pour attirer l'amour."
+        },
+        mythology: "Associée à la magie et à l'invisibilité. On dit qu'elle pousse là où la terre est riche en énergie.",
+        chemicalCompounds: ["Filicine", "Flavaspisique acide", "Acide butyrique"]
+    },
+    {
+        id: 46,
+        name: "Frêne",
+        latinName: "Fraxinus excelsior",
+        description: "Grand arbre aux feuilles composées. Ses feuilles et son écorce ont des propriétés diurétiques et anti-inflammatoires.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "magie", "sagesse", "mer"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Cure de printemps avec les feuilles pour la goutte et les rhumatismes.",
+            "Magique": "Le bois du frêne est réputé pour la fabrication de baguettes magiques. Les feuilles dans un oreiller favorisent les rêves prophétiques."
+        },
+        mythology: "Dans la mythologie nordique, Yggdrasil, l'Arbre Monde, est un frêne. Il symbolise le lien entre les différents mondes.",
+        chemicalCompounds: ["Mannitol", "Hétérosides", "Tanins"]
+    },
+    {
+        id: 47,
+        name: "Galanga",
+        latinName: "Alpinia galanga",
+        description: "Plante rhizomateuse d'Asie du Sud-Est, au goût poivré et citronné. Parente du gingembre.",
+        properties: {
+            calmante: 1,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "digestion", "amour", "santé"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Épice dans les currys thaïlandais et indonésiens.",
+            "Médicinal": "Troubles digestifs, nausées, douleurs rhumatismales.",
+            "Magique": "Les rhizomes portés pour attirer l'amour, l'argent et la chance."
+        },
+        mythology: "Mentionnée par Théophraste et Pline l'Ancien. Utilisée dans la médecine ayurvédique et la médecine traditionnelle chinoise.",
+        chemicalCompounds: ["Galangine", "Alpinine", "1,8-cinéole"]
+    },
+    {
+        id: 48,
+        name: "Genévrier",
+        latinName: "Juniperus communis",
+        description: "Arbrisseau épineux aux baies bleu-noir. Très utilisé en gin et pour la purification.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 5,
+            tonique: 3
+        },
+        tags: ["médicinal", "culinaire", "purification"],
+        evidenceLevel: 4,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse", "reins"],
+        usages: {
+            "Culinaire": "Arôme du gin, marinades.",
+            "Médicinal": "Diurétique, dépuratif, pour l'arthrite.",
+            "Magique": "Brûlé pour purifier et exorciser."
+        },
+        mythology: "Arbre sacré dans de nombreuses cultures anciennes. Symbole de protection et de vie éternelle.",
+        chemicalCompounds: ["Alpha-pinène", "Juniper", "Terpinène-4-ol"]
+    },
+    {
+        id: 49,
+        name: "Gentiane",
+        latinName: "Gentiana lutea",
+        description: "Grande plante des montagnes aux fleurs jaunes et à la racine très amère. Grand apéritif et tonique amer.",
+        properties: {
+            calmante: 1,
+            digestive: 5,
+            antiseptique: 2,
+            tonique: 4
+        },
+        tags: ["médicinal", "amer", "digestif", "force"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["ulcères", "hypertension"],
+        usages: {
+            "Culinaire": "Base des apéritifs amers (Suze, Avèze, etc.).",
+            "Médicinal": "Inappétence, digestions lentes, fatigue, anémie."
+        },
+        mythology: "Son nom vient du roi Gentius d'Illyrie, qui aurait découvert ses vertus. Symbole de la force et de la pureté des montagnes.",
+        chemicalCompounds: ["Gentopicroside", "Amarogentine", "Xanthones"]
+    },
+    {
+        id: 50,
+        name: "Géranium",
+        latinName: "Pelargonium graveolens",
+        description: "Plante à fleurs colorées et au feuillage très parfumé. L'huile essentielle est très utilisée en parfumerie.",
+        properties: {
+            calmante: 3,
+            digestive: 2,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["médicinal", "cosmétique", "amour", "santé"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Diarrhées, troubles nerveux, problèmes de peau.",
+            "Cosmétique": "Huile essentielle pour les soins de la peau.",
+            "Magique": "Les fleurs dans la maison pour attirer l'amour et la bonne humeur."
+        },
+        mythology: "Le géranium rouge est associé à l'amour passionnel, le rose à l'amour maternel, et le blanc à la fertilité.",
+        chemicalCompounds: ["Géraniol", "Citronnellol", "Linalol"]
+    },
+    {
+        id: 51,
+        name: "Gingembre",
+        latinName: "Zingiber officinale",
+        description: "Rhizome tropical au goût piquant et chaud. Un des toniques les plus puissants.",
+        properties: {
+            calmante: 1,
+            digestive: 5,
+            antiseptique: 4,
+            tonique: 5
+        },
+        tags: ["culinaire", "médicinal", "tonique", "amour"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["grossesse-haute-dose"],
+        usages: {
+            "Culinaire": "Cuisine asiatique, boissons.",
+            "Médicinal": "Nausées, stimulant immunitaire, anti-inflammatoire.",
+            "Magique": "Pour 'échauffer' les passions et attirer l'amour."
+        },
+        mythology: "Considéré comme une plante aphrodisiaque et un don des dieux dans la tradition ayurvédique.",
+        chemicalCompounds: ["Gingérol", "Shogaol", "Zingiberène"]
+    },
+    {
+        id: 52,
+        name: "Ginseng",
+        latinName: "Panax ginseng",
+        description: "Plante vivace d'Asie dont la racine est en forme de corps humain. C'est le plus grand tonique général.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 5
+        },
+        tags: ["médicinal", "tonique", "longévité", "amour", "santé"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["hypertension", "enfants"],
+        usages: {
+            "Médicinal": "Asthénie physique et intellectuelle, stress, convalescence.",
+            "Magique": "Porté pour attirer l'amour, la santé et la richesse. La racine porte chance."
+        },
+        mythology: "Son nom 'Panax' vient du grec 'pan' (tout) et 'akos' (remède), signifiant 'remède universel'. Considéré comme une plante magique en Asie.",
+        chemicalCompounds: ["Ginsénosides", "Panaxanes", "Huiles essentielles"]
+    },
+    {
+        id: 53,
+        name: "Gui",
+        latinName: "Viscum album",
+        description: "Plante parasite qui pousse sur les arbres. Symbole de vie, de paix et de fertilité.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "magie", "protection", "amour", "paix"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["toxique-feuilles-baies"],
+        usages: {
+            "Médicinal": "**USAGE MÉDICAL STRICT.** Hypertension, artériosclérose.",
+            "Magique": "Le plus grand porte-bonheur. S'embrasser sous une branche de gui pour s'assurer fidélité et amour."
+        },
+        mythology: "Plante sacrée des druides. Récoltée avec une serpe d'or le sixième jour de la lune. Symbole de la trêve dans les combats.",
+        chemicalCompounds: ["Viscotoxine", "Lectines", "Polysaccharides"]
+    },
+    {
+        id: 54,
+        name: "Guimauve",
+        latinName: "Althaea officinalis",
+        description: "Plante des lieux humides, dont les racines sont riches en mucilages. Douce et émolliente.",
+        properties: {
+            calmante: 3,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "pulmonaire", "peau"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["diabète"],
+        usages: {
+            "Médicinal": "Toux sèches, irritations de la gorge, gastrites.",
+            "Culinaire": "Les racines cuites étaient à l'origine de la confiserie 'guimauve'."
+        },
+        mythology: "Dédiée à Vénus. Son nom vient du grec 'altho' qui signifie 'guérir'.",
+        chemicalCompounds: ["Mucilages", "Pectine", "Asparagine"]
+    },
+    {
+        id: 55,
+        name: "Herbe à Chats",
+        latinName: "Nepeta cataria",
+        description: "Plante vivace dont l'odeur euphorisante attire irrésistiblement les chats.",
+        properties: {
+            calmante: 4,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "félin", "amour", "joie"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Médicinal": "Sédatif léger, favorise le sommeil, fièvre.",
+            "Magique": "Infusée dans un bain pour attirer l'amour. Portée pour le courage."
+        },
+        mythology: "Son nom vient de la ville de Catari en Italie où elle poussait en abondance. Associée à la magie et aux esprits familiers.",
+        chemicalCompounds: ["Népétalactone", "Acide népétalactonique", "Caryophyllène"]
+    },
+    {
+        id: 56,
+        name: "Houx",
+        latinName: "Ilex aquifolium",
+        description: "Arbre à feuilles persistantes et épineuses et aux baies rouges. Symbole de protection et de chance.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "protection", "chance", "divination"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["baies-toxiques"],
+        usages: {
+            "Médicinal": "Décoction de feuilles pour la fièvre, les rhumatismes.",
+            "Magique": "Planté près de la maison pour la protéger contre la foudre et les mauvais esprits. Les branches servent de baguettes de divination."
+        },
+        mythology: "Consacré à Saturne et au dieu gaulois Lug. Arbre sacré des druides, symbole de vie éternelle car il reste vert en hiver.",
+        chemicalCompounds: ["Illicine", "Théobromine", "Acide caféique"]
+    },
+    {
+        id: 57,
+        name: "Hysope",
+        latinName: "Hyssopus officinalis",
+        description: "Arbrisseau des régions sèches aux fleurs bleues. Tris biblique et médicinal aux vertus purifiantes.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 5,
+            tonique: 2
+        },
+        tags: ["médicinal", "purification", "sacré", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["épilepsie"],
+        usages: {
+            "Médicinal": "Affections respiratoires (bronchite, asthme), digestions lentes.",
+            "Magique": "Brûlée pour la purification des lieux et des personnes. Ajoutée à l'eau de bain pour se débarrasser des négativités."
+        },
+        mythology: "Plante citée dans la Bible pour la purification. Consacrée à la Vierge Marie.",
+        chemicalCompounds: ["Marrubine", "Diosmine", "Huile essentielle"]
+    },
+    {
+        id: 58,
+        name: "Iris",
+        latinName: "Iris florentina / Iris germanica",
+        description: "Plante à grandes fleurs spectaculaires. Le rhizome (orviétan) est utilisé en parfumerie.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "cosmétique", "sagesse", "paix"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Cosmétique": "Poudre de rhizome pour fixer les parfums.",
+            "Médicinal": "En cataplasme pour les rhumatismes."
+        },
+        mythology: "Symbole de la royauté en France (fleur de lys). Associé à Iris, messagère des dieux.",
+        chemicalCompounds: ["Irone", "Rhizome", "Flavonoïdes"]
+    },
+    {
+        id: 59,
+        name: "Jusquiame",
+        latinName: "Hyoscyamus niger",
+        description: "Plante très toxique et vénéneuse, à l'odeur désagréable. Utilisée en magie et en médecine historique.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "magie", "divination", "amour"],
+        evidenceLevel: 1,
+        evidenceType: "traditionnel",
+        contraindications: ["TOXIQUE-MORTELLE"],
+        usages: {
+            "Médicinal": "**DÉCONSEILLÉ.** Jadis utilisé comme sédatif et analgésique.",
+            "Magique": "Utilisée dans les onguents des sorcières pour provoquer des hallucinations et des voyages astraux."
+        },
+        mythology: "Considérée comme une plante de Satan au Moyen Âge. Son nom viendrait du grec 'hyos' (porc) et 'kyamos' (fève), car elle rendait les porcs fous.",
+        chemicalCompounds: ["Hyoscyamine", "Scopolamine", "Atropine"]
+    },
+    {
+        id: 60,
+        name: "Laurier d'Apollon",
+        latinName: "Laurus nobilis",
+        description: "Arbrisseau à feuilles persistantes, symbole de victoire et de gloire dans l'Antiquité.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "prophétie", "succès", "purification"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Culinaire": "Feuille de laurier pour les bouillons, les ragoûts.",
+            "Médicinal": "Antiseptique, stimulant de l'appétit, pour les rhumatismes.",
+            "Magique": "Les feuilles brûlées pour la divination. Porté pour le succès dans les examens et les jeux."
+        },
+        mythology: "Consacré au dieu Apollon. La Pythie de Delphes mâchait des feuilles de laurier avant ses prophéties.",
+        chemicalCompounds: ["Eucalyptol", "Géraniol", "Terpinène"]
+    },
+    {
+        id: 61,
+        name: "Lavande",
+        latinName: "Lavandula angustifolia",
+        description: "Arbrisseau méditerranéen emblématique, à l'odeur florale et camphrée. Apaisante par excellence.",
+        properties: {
+            calmante: 5,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["médicinal", "cosmétique", "calmante"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Anxiété, insomnie, migraines, brûlures légères.",
+            "Cosmétique": "Soins pour la peau et les cheveux.",
+            "Magique": "Attire l'amour, favorise la paix. Brûlée pour la purification."
+        },
+        mythology: "Utilisée par les Romains dans les bains. Son nom vient du latin 'lavare' (laver).",
+        chemicalCompounds: ["Linalyl acétate", "Linalol", "Camphre"]
+    },
+    {
+        id: 62,
+        name: "Lierre",
+        latinName: "Hedera helix",
+        description: "Plante grimpante persistante. Les feuilles sont expectorantes, mais les baies sont toxiques.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "protection", "fidélité", "magie"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["baies-toxiques"],
+        usages: {
+            "Médicinal": "Toux, bronchite, rhumes (sirop de feuille de lierre).",
+            "Magique": "Porté pour porter chance à la femme et fidélité à l'homme. Protège la maison."
+        },
+        mythology: "Symbole de vie éternelle et de résurrection (dans la Grèce antique). Associé à Dionysos.",
+        chemicalCompounds: ["Saponines", "Hédérine", "Flavonoïdes"]
+    },
+    {
+        id: 63,
+        name: "Lilas",
+        latinName: "Syringa vulgaris",
+        description: "Arbrisseau à fleurs très parfumées, symbole du premier amour et du printemps.",
+        properties: {
+            calmante: 3,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "amour", "souvenir", "beauté"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Décoction de feuilles pour les fièvres, les rhumatismes.",
+            "Magique": "Les fleurs dans la maison pour chasser la tristesse et attirer l'amour."
+        },
+        mythology: "Associé à la première fois que l'on tombe amoureux. Dans le langage des fleurs, il exprime les premiers sentiments amoureux.",
+        chemicalCompounds: ["Fragrine", "Géraniol", "Linalol"]
+    },
+    {
+        id: 64,
+        name: "Lin",
+        latinName: "Linum usitatissimum",
+        description: "Plante cultivée pour ses fibres (textile) et ses graines (alimentaire et médicinal).",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "textile", "protection", "argent"],
+        evidenceLevel: 3,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Graines dans les pains, les salades.",
+            "Médicinal": "Graines riches en oméga-3 pour la digestion, la constipation.",
+            "Magique": "Les graines portées pour attirer l'argent."
+        },
+        mythology: "Symbole de pureté et de lumière. Les momies égyptiennes étaient enveloppées dans du lin.",
+        chemicalCompounds: ["Acides gras oméga-3 (ALA)", "Lignanes", "Mucilages"]
+    },
+    {
+        id: 65,
+        name: "Lis Blanc",
+        latinName: "Lilium candidum",
+        description: "Plante à grandes fleurs blanches et très parfumées. Symbole de pureté et de royauté.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "magie", "pureté", "royauté", "amour"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "En cataplasme pour les brûlures, les ulcères.",
+            "Magique": "Les fleurs pour éloigner les mauvais esprits et les cauchemars. Pour la pureté et la protection."
+        },
+        mythology: "Symbole de la Vierge Marie. Dans la mythologie grecque, il est né du lait d'Héra et est un symbole de royauté.",
+        chemicalCompounds: ["Huile essentielle", "Flavonoïdes", "Saponines"]
+    },
+    {
+        id: 66,
+        name: "Maïs",
+        latinName: "Zea mays",
+        description: "Céréale d'origine américaine, aux grains disposés en épis sur une hampe centrale.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "protection", "fertilité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Grains, farine, semoule.",
+            "Médicinal": "Les 'barbes de maïs' (stigmates) en infusion pour les troubles urinaires.",
+            "Magique": "Les grains de maïs de différentes couleurs portés pour la protection et la chance."
+        },
+        mythology: "Plante sacrée pour de nombreux peuples amérindiens (Aztèques, Mayas), symbole de la vie et de la nourriture.",
+        chemicalCompounds: ["Amidon", "Fibres", "Vitamines", "Phytostérols"]
+    },
+    {
+        id: 67,
+        name: "Mandragore",
+        latinName: "Mandragora officinarum",
+        description: "Plante mythique à la racine en forme de corps humain. Très toxique et réputée pour ses pouvoirs magiques.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "magie", "amour", "fertilité"],
+        evidenceLevel: 1,
+        evidenceType: "traditionnel",
+        contraindications: ["TOXIQUE-MORTELLE"],
+        usages: {
+            "Médicinal": "**DÉCONSEILLÉ.** Jadis utilisé comme narcotique et anesthésiant.",
+            "Magique": "La racine est l'ingrédient principal des philtres d'amour et des potions d'invisibilité."
+        },
+        mythology: "Mythe de la mandragore qui pousse sous les gibets et pousse un cri terrifiant quand on l'arrache, tuant ceux qui l'entendent.",
+        chemicalCompounds: ["Hyoscyamine", "Scopolamine", "Mandragorine"]
+    },
+    {
+        id: 68,
+        name: "Marjolaine",
+        latinName: "Origanum majorana",
+        description: "Plante aromatique proche de l'origan, au parfum plus doux et plus suave.",
+        properties: {
+            calmante: 3,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "amour", "protection", "bonheur"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Assaisonnement pour les plats de viande, les légumes.",
+            "Médicinal": "Tisane pour les troubles nerveux, l'insomnie, les digestions difficiles.",
+            "Magique": "Portée pour attirer l'amour et le bonheur. Protège du mal."
+        },
+        mythology: "Symbole d'amour et d'honneur. Les Grecs et les Romains en tressaient des couronnes pour les mariés.",
+        chemicalCompounds: ["Sabinène", "Terpinène-4-ol", "Linalol"]
+    },
+    {
+        id: 69,
+        name: "Marronnier",
+        latinName: "Aesculus hippocastanum",
+        description: "Grand arbre à fleurs en pyramide et à fruits (marrons) brillants. Symbole de la ville de Paris.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "protection", "chance", "argent"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["marrons-toxiques"],
+        usages: {
+            "Médicinal": "Pommade à base de marrons d'Inde pour les jambes lourdes, les hémorroïdes.",
+            "Magique": "Porter trois marrons dans sa poche pour attirer l'argent et la chance."
+        },
+        mythology: "Bien que le marron d'Inde soit toxique, il est traditionnellement associé à la chance et à la prospérité.",
+        chemicalCompounds: ["Escine", "Flavonoïdes", "Saponines"]
+    },
+    {
+        id: 70,
+        name: "Marrube Blanc",
+        latinName: "Marrubium vulgare",
+        description: "Plante des terrains vagues, aux feuilles blanchâtres et à l'amertume caractéristique.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "pulmonaire", "cœur"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Médicinal": "Toux quinteuse, bronchite chronique, expectorant. Autrefois pour les troubles cardiaques."
+        },
+        mythology: "Son nom viendrait de 'Marrubium', ville d'Italie où elle était réputée.",
+        chemicalCompounds: ["Marrubine", "Diterpènes", "Flavonoïdes"]
+    },
+    {
+        id: 71,
+        name: "Mauve",
+        latinName: "Malva sylvestris",
+        description: "Plante commune des jardins et des chemins, aux fleurs mauves. Émolliente et adoucissante.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "cosmétique", "amour", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Toux, irritations de la gorge, constipation.",
+            "Cosmétique": "Masques pour le visage.",
+            "Magique": "Portée pour attirer l'amour et protéger des maladies."
+        },
+        mythology: "Consacrée à Vénus. Son nom vient du mot latin 'malva' qui signifie 'doux'.",
+        chemicalCompounds: ["Mucilages", "Anthocyanes", "Flavonoïdes"]
+    },
+    {
+        id: 72,
+        name: "Mélisse",
+        latinName: "Melissa officinalis",
+        description: "Plante vivace à l'odeur de citron. Réputée pour son action calmante sur le système nerveux.",
+        properties: {
+            calmante: 5,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "calmante", "digestion"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["hypothyroïdie"],
+        usages: {
+            "Médicinal": "Stress, anxiété, insomnie, palpitations.",
+            "Culinaire": "Tisanes, sauces, desserts.",
+            "Magique": "Boire une infusion chaque jour pour augmenter la longévité."
+        },
+        mythology: "Consacrée à la déesse Artémis/Diane. Son nom 'Melissa' signifie 'abeille' en grec.",
+        chemicalCompounds: ["Citronnellal", "Géraniol", "Acide rosmarinique"]
+    },
+    {
+        id: 73,
+        name: "Menthe",
+        latinName: "Mentha piperita",
+        description: "Hybride stérile, son principal composé est le menthol. Très rafraîchissante et stimulante.",
+        properties: {
+            calmante: 2,
+            digestive: 5,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "digestive"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["reflux-gastro"],
+        usages: {
+            "Culinaire": "Thé à la menthe, taboulé, cocktails.",
+            "Médicinal": "Tisane pour les nausées, les digestions difficiles."
+        },
+        mythology: "Nymphé Menthe de la mythologie grecque, transformée en plante par la déesse Déméter.",
+        chemicalCompounds: ["Menthol", "Menthone", "Flavonoïdes"]
+    },
+    {
+        id: 74,
+        name: "Millepertuis",
+        latinName: "Hypericum perforatum",
+        description: "Plante aux fleurs jaunes vif, qui 'saignent' un pigment rouge. Antidépresseur naturel.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["médicinal", "dépression", "nerfs"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["antidépresseurs", "contraceptifs", "photosensibilisation"],
+        usages: {
+            "Médicinal": "Dépression légère à modérée, anxiété, névralgies.",
+            "Magique": "Plante du soleil, chasse les cauchemars."
+        },
+        mythology: "Récoltée à la Saint-Jean pour ses pouvoirs magiques. Son nom 'perforatum' vient des petites glandes sur ses feuilles.",
+        chemicalCompounds: ["Hypericine", "Hyperforine", "Flavonoïdes"]
+    },
+    {
+        id: 75,
+        name: "Moutarde Noire",
+        latinName: "Brassica nigra",
+        description: "Plante annuelle dont les graines sont utilisées pour fabriquer la moutarde de Dijon.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "courage", "fertilité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["irritation-cutanée"],
+        usages: {
+            "Culinaire": "Condiment pour les viandes, les vinaigrettes.",
+            "Médicinal": "En cataplasme pour les bronchites, les rhumatismes.",
+            "Magique": "Portée pour donner courage et force."
+        },
+        mythology: "Associée à la foi et au courage dans la parabole biblique de la graine de moutarde.",
+        chemicalCompounds: ["Sinigrine", "Myrosine", "Isothiocyanates"]
+    },
+    {
+        id: 76,
+        name: "Muguet",
+        latinName: "Convallaria majalis",
+        description: "Plante des sous-bois à l'odeur suave et aux clochettes blanches. **TRÈS TOXIQUE**.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "toxique", "cœur", "bonheur"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["TOXIQUE-TOUTE-PLANTE"],
+        usages: {
+            "Médicinal": "**USAGE EXCLUSIVEMENT MÉDICAL.** Troubles cardiaques.",
+            "Magique": "Porté pour améliorer la mémoire, attirer le bonheur."
+        },
+        mythology: "Symbole du retour du printemps, du bonheur et de la douceur. Associé à la Vierge Marie.",
+        chemicalCompounds: ["Hétérosides cardiotoniques", "Flavonoïdes"]
+    },
+    {
+        id: 77,
+        name: "Muscadier",
+        latinName: "Myristica fragrans",
+        description: "Arbre tropical dont la graine (noix de muscade) et l'arille (macis) sont des épices très recherchées.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "magie", "amour", "argent"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["femme-enceinte", "haute-dose"],
+        usages: {
+            "Culinaire": "Noix de muscade râpée pour les gratins, les sauces.",
+            "Médicinal": "Stimulant digestif, carminatif.",
+            "Magique": "Portée pour attirer l'argent et l'amour."
+        },
+        mythology: "Au Moyen Âge, on croyait que la noix de muscade pouvait protéger de la peste.",
+        chemicalCompounds: ["Myristicine", "Elemicine", "Safrol"]
+    },
+    {
+        id: 78,
+        name: "Myrrhe",
+        latinName: "Commiphora myrrha",
+        description: "Résine aromatique et amère obtenue en incisant l'écorce d'un arbre d'Afrique et d'Arabie.",
+        properties: {
+            calmante: 3,
+            digestive: 1,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "purification", "spiritualité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Antiseptique pour la bouche (gingivites), cicatrisant.",
+            "Parfumerie": "Note de fond dans de nombreux parfums.",
+            "Magique": "Brûlée comme encens pour la purification, la méditation et la protection spirituelle."
+        },
+        mythology: "L'un des cadeaux des Rois Mages à l'enfant Jésus, avec l'or et l'encens. Symbole de la souffrance et de la guérison.",
+        chemicalCompounds: ["Commiphorine", "Acides résiniques", "Guggulstérols"]
+    },
+    {
+        id: 79,
+        name: "Myrte",
+        latinName: "Myrtus communis",
+        description: "Arbrisseau méditerranéen à feuillage persistant et baies aromatiques. Symbole d'amour et de beauté.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["médicinal", "culinaire", "magique", "amour", "beauté"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Baies pour aromatiser les liqueurs.",
+            "Médicinal": "Lotions pour les peaux grasses.",
+            "Magique": "Porté pour conserver la jeunesse."
+        },
+        mythology: "Consacrée à Aphrodite/Vénus. Dans la Rome antique, les mariées portaient une couronne de myrte.",
+        chemicalCompounds: ["Myrtol", "Tanins", "Flavonoïdes"]
+    },
+    {
+        id: 80,
+        name: "Noisetier",
+        latinName: "Corylus avellana",
+        description: "Arbrisseau des bois et des haies, dont les fruits (noisettes) sont très nutritifs.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "sagesse", "divination", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Noisettes fraîches, grillées, en pâtisserie.",
+            "Médicinal": "Riche en vitamine E, bon pour le système cardiovasculaire.",
+            "Magique": "Les baguettes de sourcier sont souvent en bois de noisetier. Porté pour la sagesse."
+        },
+        mythology: "Associé à la sagesse et à la connaissance. Les druides l'utilisaient pour leurs baguettes.",
+        chemicalCompounds: ["Acides gras insaturés", "Vitamine E", "Protéines"]
+    },
+    {
+        id: 81,
+        name: "Noyer",
+        latinName: "Juglans regia",
+        description: "Arbre fruitier dont les cerneaux sont nutritifs. Les feuilles et l'écorce sont toniques.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "fertilité", "sagesse"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Cerneaux en pâtisserie, en salade.",
+            "Médicinal": "Décoction de feuilles pour les problèmes de peau.",
+            "Magique": "Porter une noix pour augmenter la fertilité."
+        },
+        mythology: "Associé à Jupiter et aux dieux de la sagesse. Les noix, par leur forme, évoquent le cerveau.",
+        chemicalCompounds: ["Juglone", "Tanins", "Acides gras insaturés"]
+    },
+    {
+        id: 82,
+        name: "Oignon",
+        latinName: "Allium cepa",
+        description: "Bulbe cultivé depuis des millénaires, aux vertus antiseptiques et diurétiques.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "protection", "purification"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Base de nombreuses recettes.",
+            "Médicinal": "Diurétique, expectorant, pour les piqûres d'insectes.",
+            "Magique": "Placé dans la maison pour absorber les maladies et les énergies négatives."
+        },
+        mythology: "Les Égyptiens le vénéraient et le représentaient sur leurs monuments. Symbole de protection.",
+        chemicalCompounds: ["Quercétine", "Composés soufrés", "Fructosanes"]
+    },
+    {
+        id: 83,
+        name: "Oliban",
+        latinName: "Boswellia sacra",
+        description: "Résine précieuse obtenue en incisant l'écorce d'un arbre d'Oman et de Somalie.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "spiritualité", "purification", "protection"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Anti-inflammatoire pour l'arthrite.",
+            "Parfumerie": "Parfum d'église, note de fond.",
+            "Magique": "Brûlé comme encens pour la méditation, la purification et la communication avec le divin."
+        },
+        mythology: "L'un des cadeaux des Rois Mages à l'enfant Jésus. Utilisé dans les rituels religieux juifs, chrétiens et musulmans.",
+        chemicalCompounds: ["Acides boswelliques", "Encensol", "Terpènes"]
+    },
+    {
+        id: 84,
+        name: "Olivier",
+        latinName: "Olea europaea",
+        description: "Arbre méditerranéen symbole de paix. L'huile est au cœur de son usage.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 3,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "paix", "santé", "sacré"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Huile pour assaisonnement.",
+            "Médicinal": "Huile pour la santé cardiovasculaire.",
+            "Magique": "L'huile pour allumer les lampes des autels."
+        },
+        mythology: "Offerte par Athéna aux habitants d'Athènes. Symbole de paix, de victoire et de sagesse.",
+        chemicalCompounds: ["Acides gras mono-insaturés", "Oléuropéine", "Polyphénols"]
+    },
+    {
+        id: 85,
+        name: "Oranger",
+        latinName: "Citrus sinensis",
+        description: "Arbre fruitier aux agrumes doux et parfumés. Symbole de chance et de prospérité.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "chance", "amour", "fertilité"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Fruits frais, jus.",
+            "Médicinal": "Riche en vitamine C, stimulant.",
+            "Magique": "Les fleurs d'oranger en infusion pour attirer l'amour. Les écorces pour la chance."
+        },
+        mythology: "Symbole de la fertilité et de l'abondance. Les fleurs blanches symbolisent la pureté.",
+        chemicalCompounds: ["Vitamine C", "Flavonoïdes", "Huiles essentielles"]
+    },
+    {
+        id: 86,
+        name: "Origan",
+        latinName: "Origanum vulgare",
+        description: "Plante aromatique méditerranéenne, surnommée 'herbe à pizza'. Stimulant général.",
+        properties: {
+            calmante: 1,
+            digestive: 4,
+            antiseptique: 5,
+            tonique: 3
+        },
+        tags: ["culinaire", "médicinal", "force", "protection", "joie"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Sauce pizza, plats méditerranéens.",
+            "Médicinal": "Antiseptique, expectorant, stimulant digestif.",
+            "Magique": "Porté pour donner force et courage. Brûlé pour la protection."
+        },
+        mythology: "Consacré à Aphrodite et à Dionysos. Son nom signifie 'joie de la montagne'.",
+        chemicalCompounds: ["Carvacrol", "Thymol", "Terpinène"]
+    },
+    {
+        id: 87,
+        name: "Ortie",
+        latinName: "Urtica dioica",
+        description: "Plante 'urticante' aux vertus médicinales et nutritives exceptionnelles. Tonique et dépurative.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 5
+        },
+        tags: ["médicinal", "culinaire", "tonique"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["grossesse", "cœur", "reins"],
+        usages: {
+            "Culinaire": "Soupe, quiche, tisane.",
+            "Médicinal": "Carence en fer, rhumatismes.",
+            "Magique": "Portée pour donner courage."
+        },
+        mythology: "Considérée comme une plante de protection. Dans le folklore, elle pouvait empêcher les fantômes d'entrer.",
+        chemicalCompounds: ["Chlorophylle", "Minéraux", "Histamine"]
+    },
+    {
+        id: 88,
+        name: "Passiflore",
+        latinName: "Passiflora incarnata",
+        description: "Plante grimpante à la fleur spectaculaire. Sédative puissant sans effets secondaires.",
+        properties: {
+            calmante: 5,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "calmante", "sommeil"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Insomnie, anxiété, agitation nerveuse.",
+            "Magique": "Placée sous l'oreiller pour le sommeil paisible."
+        },
+        mythology: "Les missionnaires jésuites virent dans la fleur les symboles de la Passion du Christ.",
+        chemicalCompounds: ["Flavonoïdes", "Alcaloïdes"]
+    },
+    {
+        id: 89,
+        name: "Pavot",
+        latinName: "Papaver somniferum",
+        description: "Plante à grandes fleurs et à capsule riche en latex. Source de l'opium. **RÉGLEMENTÉ**.",
+        properties: {
+            calmante: 5,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "hypnotique", "rêves", "oubli"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["RÉGLEMENTÉ"],
+        usages: {
+            "Médicinal": "**USAGE MÉDICAL STRICT.** Antidouleur puissant.",
+            "Magique": "Porté pour favoriser le sommeil."
+        },
+        mythology: "Associé à Déméter et Hypnos (dieu du sommeil).",
+        chemicalCompounds: ["Morphine", "Codéine", "Papavérine"]
+    },
+    {
+        id: 90,
+        name: "Pêcher",
+        latinName: "Prunus persica",
+        description: "Arbre fruitier au fruit doux et velouté. Symbole d'immortalité et de vérité.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "immortalité", "amour", "vérité"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["noyaux-toxiques"],
+        usages: {
+            "Culinaire": "Fruit frais, en conserve, en pâtisserie.",
+            "Médicinal": "Décoction de feuilles pour les maux de tête.",
+            "Magique": "Le bois du pêcher protège contre les mauvais esprits."
+        },
+        mythology: "Arbre d'immortalité dans la mythologie chinoise. Le fruit défendu dans le jardin d'Eden.",
+        chemicalCompounds: ["Sucres", "Vitamines", "Acide cyanhydrique (dans les noyaux)"]
+    },
+    {
+        id: 91,
+        name: "Pensée",
+        latinName: "Viola tricolor",
+        description: "Petite fleur des champs aux pétales multicolores. Symbole de pensée et de souvenir.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "amour", "souvenir", "pensée"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Affections cutanées (eczéma, acné), diurétique.",
+            "Magique": "Portée pour attirer l'amour et pour savoir les pensées des autres."
+        },
+        mythology: "Dans le langage des fleurs, elle signifie 'Je pense à toi'.",
+        chemicalCompounds: ["Flavonoïdes", "Saponines", "Salicylates"]
+    },
+    {
+        id: 92,
+        name: "Persil",
+        latinName: "Petroselinum crispum",
+        description: "Plante aromatique très commune, riche en vitamines et en minéraux.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "amour", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse-haute-dose"],
+        usages: {
+            "Culinaire": "Garniture, sauces, persillade.",
+            "Médicinal": "Rafraîchissant haleine, diurétique, stimule l'appétit.",
+            "Magique": "Porté pour attirer l'amour et la chance."
+        },
+        mythology: "Associé à la mort et à la renaissance dans la mythologie grecque (Archemorus).",
+        chemicalCompounds: ["Apiol", "Myristicine", "Vitamines A, C, K"]
+    },
+    {
+        id: 93,
+        name: "Pin Sylvestre",
+        latinName: "Pinus sylvestris",
+        description: "Arbre résineux des forêts d'Europe. Son bois, ses aiguilles et sa résine sont utilisés.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["médicinal", "magie", "longévité", "fertilité"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["bronchite"],
+        usages: {
+            "Médicinal": "Tisane de bourgeons (sirop de pin) pour les bronchites.",
+            "Magique": "Les aiguilles brûlées pour la purification. Le bois pour la construction des maisons."
+        },
+        mythology: "Arbre de la vie et de la connaissance dans de nombreuses cultures nordiques.",
+        chemicalCompounds: ["Pinène", "Resine", "Vitamine C"]
+    },
+    {
+        id: 94,
+        name: "Pissenlit",
+        latinName: "Taraxacum officinale",
+        description: "'Pisse-en-lit', plante commune mais aux vertus dépuratives et digestives remarquables.",
+        properties: {
+            calmante: 1,
+            digestive: 4,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "culinaire", "dépuration", "souhait"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["occlusion-biliaire"],
+        usages: {
+            "Culinaire": "Salades, confiture de fleurs.",
+            "Médicinal": "Problèmes hépatiques, digestion, diurétique."
+        },
+        mythology: "Souffler sur les graines permet de réaliser un vœu.",
+        chemicalCompounds: ["Taraxacine", "Inuline", "Flavonoïdes"]
+    },
+    {
+        id: 95,
+        name: "Pommier",
+        latinName: "Malus domestica",
+        description: "Arbre fruitier emblématique, dont le fruit est riche en pectine et en vitamines.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 1,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "amour", "sagesse", "immortalité"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["pépins-toxiques"],
+        usages: {
+            "Culinaire": "Fruits frais, jus, cidre, vinaigre.",
+            "Médicinal": "Pomme râpée contre la diarrhée.",
+            "Magique": "Le fruit défendu, symbole de la tentation et de la connaissance."
+        },
+        mythology: "Pomme de la discorde, pomme d'Adam et Ève, pomme de William Tell. Symbole central dans de nombreuses mythologies.",
+        chemicalCompounds: ["Pectine", "Vitamine C", "Acide malique", "Amygdaline"]
+    },
+    {
+        id: 96,
+        name: "Romarin",
+        latinName: "Rosmarinus officinalis",
+        description: "Arbrisseau méditerranéen emblématique. Symbole de mémoire.",
+        properties: {
+            calmante: 1,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 5
+        },
+        tags: ["culinaire", "médicinal", "cosmétique"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["hypertension"],
+        usages: {
+            "Culinaire": "Grillades, ragoûts.",
+            "Médicinal": "Stimule la mémoire, fatigue.",
+            "Cosmétique": "Lotions capillaires."
+        },
+        mythology: "Les étudiants grecs en tressaient des couronnes pour améliorer leur rétention.",
+        chemicalCompounds: ["Acide carnosique", "Carnosol", "1,8-Cinéole"]
+    },
+    {
+        id: 97,
+        name: "Rosier",
+        latinName: "Rosa",
+        description: "Arbrisseau épineux à la fleur reine, symbole universel de l'amour et de la beauté.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antoseptique: 3,
+            tonique: 1
+        },
+        tags: ["culinaire", "médicinal", "magique", "amour", "beauté", "secret"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Confiture de pétales, eau de rose.",
+            "Médicinal": "Laxatif léger (confiture de roses), tonique.",
+            "Magique": "Les pétales pour attirer l'amour. Pour garder un secret."
+        },
+        mythology: "Associée à Aphrodite/Vénus, Isis et la Vierge Marie. Symbole de perfection et de mystère.",
+        chemicalCompounds: ["Huile essentielle", "Géraniol", "Citronnellol", "Vitamine C"]
+    },
+    {
+        id: 98,
+        name: "Rue",
+        latinName: "Ruta graveolens",
+        description: "Plante arbustive à l'odeur forte et désagréable. Très utilisée en magie de protection.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "magie", "protection", "santé", "purification"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: ["photosensibilisation", "grossesse"],
+        usages: {
+            "Médicinal": "Stimulant digestif, emménagogue.",
+            "Magique": "Brûlée pour purifier un lieu et briser les sorts. Portée pour la protection contre le mauvais œil."
+        },
+        mythology: "Considérée comme une plante de protection puissante depuis l'Antiquité. Le Christ aurait été protégé par la rue.",
+        chemicalCompounds: ["Rutine", "Furocoumarines", "Alcaloïdes"]
+    },
+    {
+        id: 99,
+        name: "Safran",
+        latinName: "Crocus sativus",
+        description: "Épice la plus chère au monde, issue des stigmates d'une petite fleur d'automne.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "amour", "luxe", "clairvoyance"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Culinaire": "Colorant et aromate pour les paellas, les risottos.",
+            "Médicinal": "Stimulant, antispasmodique, aphrodisiaque.",
+            "Magique": "Brûlé pour développer les pouvoirs psychiques et la clairvoyance."
+        },
+        mythology: "Symbole de luxe, de divinité et de connaissance. Utilisé dans les rituels sacrés et les cérémonies de couronnement.",
+        chemicalCompounds: ["Safranal", "Picrocrocine", "Crocin"]
+    },
+    {
+        id: 100,
+        name: "Sang de Dragon",
+        latinName: "Daemonorops draco",
+        description: "Résine rouge foncé d'un palmier d'Asie du Sud-Est. Utilisée comme teinture et encens.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "protection", "purification", "amour"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Astringent, cicatrisant (en usage externe).",
+            "Magique": "Brûlé pour la protection, la purification et pour attirer l'amour. Pour sceller les serments."
+        },
+        mythology: "Son nom vient de sa ressemblance avec le sang coagulé. Considéré comme le sang d'un dragon ou d'un arbre magique.",
+        chemicalCompounds: ["Dracorhodine", "Acide dracorésinotannique", "Résines"]
+    },
+    {
+        id: 101,
+        name: "Santal",
+        latinName: "Santalum album",
+        description: "Arbre tropical au bois précieux et très parfumé. L'huile essentielle est prisée pour ses vertus méditatives et spirituelles.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 3,
+            tonique: 1
+        },
+        tags: ["médicinal", "encens", "spiritualité", "méditation", "protection"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Anti-inflammatoire pour la peau, antiseptique des voies respiratoires.",
+            "Parfumerie": "Note de fond dans de nombreux parfums.",
+            "Magique": "Brûlé comme encens pour la méditation, la purification et la communication avec le divin."
+        },
+        mythology: "Arbre sacré dans les religions hindoues et bouddhistes, utilisé pour les rituels et la méditation.",
+        chemicalCompounds: ["Santalol", "Alpha-santalol", "Santalenes"]
+    },
+    {
+        id: 102,
+        name: "Sauge",
+        latinName: "Salvia officinalis",
+        description: "Arbrisseau persistant aux feuilles veloutées et parfumées. 'Salvia' signifie 'sauver'.",
+        properties: {
+            calmante: 3,
+            digestive: 2,
+            antiseptique: 5,
+            tonique: 4
+        },
+        tags: ["médicinal", "culinaire", "magique", "purification", "protection", "antiseptique"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["grossesse", "allaitement"],
+        usages: {
+            "Culinaire": "Assaisonnement pour les viandes grasses.",
+            "Médicinal": "Gargarismes (maux de gorge), bouffées de chaleur.",
+            "Magique": "Brûlée pour purifier un lieu, chasser les esprits négatifs."
+        },
+        mythology: "Considérée comme une plante sacrée favorisant la longévité et la sagesse.",
+        chemicalCompounds: ["Thuyone", "Camphre", "Acide rosmarinique"]
+    },
+    {
+        id: 103,
+        name: "Saule blanc",
+        latinName: "Salix alba",
+        description: "Arbre des lieux humides, à l'écorce lisse. L'écorce est la source historique de l'aspirine.",
+        properties: {
+            calmante: 1,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "magie", "amour", "protection"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Décoction d'écorce pour les douleurs rhumatismales, les fièvres.",
+            "Magique": "Les feuilles brûlées pour attirer l'amour."
+        },
+        mythology: "Dans la mythologie grecque, les nymphes pleurades se sont transformées en saules.",
+        chemicalCompounds: ["Salicine", "Salicortine", "Tanins"]
+    },
+    {
+        id: 104,
+        name: "Sorbier des oiseleurs",
+        latinName: "Sorbus aucuparia",
+        description: "Arbre des bois et des haies, aux grappes de baies rouges vives. Symbole de protection et de magie.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "culinaire", "protection", "magie"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Gelée et sirop de sorbier.",
+            "Médicinal": "Riche en vitamine C, pour les rhumes.",
+            "Magique": "Porté pour se protéger des sorts et du mauvais œil."
+        },
+        mythology: "Associé à la magie blanche. Une baguette de sorbier serait l'une des plus puissantes.",
+        chemicalCompounds: ["Acide sorbique", "Vitamine C", "Flavonoïdes"]
+    },
+    {
+        id: 105,
+        name: "Souci",
+        latinName: "Calendula officinalis",
+        description: "Plante annuelle aux fleurs d'un orange vif, qui suit le soleil. Très apaisante pour la peau.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 4,
+            tonique: 1
+        },
+        tags: ["médicinal", "culinaire", "amour", "protection", "soleil"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Crèmes et pommades pour les peaux irritées.",
+            "Culinaire": "Pétales comestibles pour colorer les plats.",
+            "Magique": "Les fleurs dans la maison pour attirer l'amour et la chance."
+        },
+        mythology: "Associé au soleil et à la positivité. Son nom vient du latin 'calendae', premier jour du mois.",
+        chemicalCompounds: ["Calenduline", "Flavonoïdes", "Triterpènes"]
+    },
+    {
+        id: 106,
+        name: "Sureau noir",
+        latinName: "Sambucus nigra",
+        description: "Arbrisseau commun aux fleurs blanches en ombelles et aux baies noires. Remède de grand-mère.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 4,
+            tonique: 2
+        },
+        tags: ["médicinal", "culinaire", "protection", "exorcisme"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["baies-crues-toxiques"],
+        usages: {
+            "Culinaire": "Fleurs (beignets, sirop), baies cuites (confitures).",
+            "Médicinal": "Fleurs en infusion contre les rhumes.",
+            "Magique": "Le bois du sureau servait à fabriquer des baguettes magiques."
+        },
+        mythology: "Arbre sacré associé à la déesse mère dans de nombreuses traditions. Habité par des esprits.",
+        chemicalCompounds: ["Sambunigrine", "Anthocyanes", "Flavonoïdes (quercétine)"]
+    },
+    {
+        id: 107,
+        name: "Tabac",
+        latinName: "Nicotiana tabacum",
+        description: "Plante cultivée pour ses feuilles, qui sont séchées et fumées. Très addictive.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 3
+        },
+        tags: ["médicinal", "sacré", "purification", "voyage chamanique"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["très-addictif", "cancer"],
+        usages: {
+            "Médicinal": "Jadis utilisé comme stimulant et analgésique.",
+            "Magique": "Utilisé par les chamans pour la purification et la communication avec les esprits."
+        },
+        mythology: "Plante sacrée pour de nombreux peuples amérindiens.",
+        chemicalCompounds: ["Nicotine", "Anabasine", "Nornicotine"]
+    },
+    {
+        id: 108,
+        name: "Thym",
+        latinName: "Thymus vulgaris",
+        description: "Sous-arbrisseau méditerranéen puissant, l'un des antiseptiques naturels les plus forts.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 5,
+            tonique: 4
+        },
+        tags: ["culinaire", "médicinal", "antiseptique", "courage"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["hypertension"],
+        usages: {
+            "Culinaire": "Bouquet garni, ragoûts.",
+            "Médicinal": "Toux, bronchite, infections.",
+            "Magique": "Porté pour donner courage. Brûlé pour la purification."
+        },
+        mythology: "Symbole de courage et d'activité. Les chevaliers du Moyen Âge en portaient une branche.",
+        chemicalCompounds: ["Thymol", "Carvacrol", "Linalol"]
+    },
+    {
+        id: 109,
+        name: "Tilleul",
+        latinName: "Tilia cordata",
+        description: "Grand arbre à feuilles en cœur et à fleurs très parfumées. Infusion calmante par excellence.",
+        properties: {
+            calmante: 5,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "calmante", "sommeil", "amour"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Tisane pour l'insomnie, l'anxiété.",
+            "Magique": "Brûlé pour attirer l'amour et obtenir des prophéties."
+        },
+        mythology: "Arbre sacré des Germains, symbole d'amitié, de justice et de fidélité.",
+        chemicalCompounds: ["Farnésol", "Flavonoïdes", "Mucilages"]
+    },
+    {
+        id: 110,
+        name: "Valériane",
+        latinName: "Valeriana officinalis",
+        description: "Plante à l'odeur forte, surnommée 'l'herbe aux chats'. Puissant sédatif.",
+        properties: {
+            calmante: 5,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 1
+        },
+        tags: ["médicinal", "calmante", "sommeil"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: ["conduite", "grossesse"],
+        usages: {
+            "Médicinal": "Insomnie sévère, anxiété, nervosité."
+        },
+        mythology: "Surnommée 'phu' par les Grecs en raison de son odeur.",
+        chemicalCompounds: ["Acide valérénique", "Valépotriates"]
+    },
+    {
+        id: 111,
+        name: "Verveine",
+        latinName: "Verbena officinalis",
+        description: "Plante sacrée des druides, aux petites fleurs lilas. Relaxante et digestive.",
+        properties: {
+            calmante: 4,
+            digestive: 3,
+            antiseptique: 2,
+            tonique: 2
+        },
+        tags: ["médicinal", "magique", "amour", "purification"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: ["grossesse"],
+        usages: {
+            "Médicinal": "Stress, nervosité, digestion difficile.",
+            "Magique": "Consacrée par les druides. Pour la purification et attirer l'amour."
+        },
+        mythology: "Considérée comme une plante magique par excellence.",
+        chemicalCompounds: ["Verbénaline", "Iridoïdes", "Flavonoïdes"]
+    },
+    {
+        id: 112,
+        name: "Vétiver",
+        latinName: "Chrysopogon zizanioides",
+        description: "Plante herbacée dont les racines très odorantes sont utilisées en parfumerie et en médecine ayurvédique.",
+        properties: {
+            calmante: 4,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "cosmétique", "racine", "paix", "protection"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Fièvre, arthrite.",
+            "Cosmétique": "Parfumerie masculine.",
+            "Magique": "Pour la paix intérieure et l'ancrage."
+        },
+        mythology: "Utilisé en Inde pour la méditation et la protection.",
+        chemicalCompounds: ["Vétivérone", "Khusimol", "Cétones"]
+    },
+    {
+        id: 113,
+        name: "Violette",
+        latinName: "Viola odorata",
+        description: "Petite fleur des bois, à l'odeur douce et suave. Symbole de modestie et de fidélité.",
+        properties: {
+            calmante: 3,
+            digestive: 1,
+            antiseptique: 2,
+            tonique: 1
+        },
+        tags: ["médicinal", "cosmétique", "amour", "modestie", "rêves"],
+        evidenceLevel: 2,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Expectorant, pectoral.",
+            "Cosmétique": "Parfums.",
+            "Magique": "Portée pour attirer l'amour et la fidélité."
+        },
+        mythology: "Associée à Aphrodite et à la pureté.",
+        chemicalCompounds: ["Ionone", "Violettes (parfum)", "Flavonoïdes"]
+    },
+    {
+        id: 114,
+        name: "Aloe Vera",
+        latinName: "Aloe barbadensis",
+        description: "Plante succulente aux feuilles charnues, au gel aux vertus cicatrisantes et hydratantes.",
+        properties: {
+            calmante: 2,
+            digestive: 3,
+            antiseptique: 5,
+            tonique: 1
+        },
+        tags: ["médicinal", "cicatrisant", "beauté", "protection", "immortalité"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Brûlures, coupures, problèmes de peau.",
+            "Cosmétique": "Gels et lotions.",
+            "Magique": "Portée pour la protection et la chance."
+        },
+        mythology: "Considérée comme la plante de l'immortalité par les Égyptiens.",
+        chemicalCompounds: ["Acemannan", "Aloïne", "Anthraquinones"]
+    },
+    {
+        id: 115,
+        name: "Ginkgo Biloba",
+        latinName: "Ginkgo biloba",
+        description: "Arbre considéré comme un fossile vivant. Ses feuilles en éventail sont uniques.",
+        properties: {
+            calmante: 2,
+            digestive: 1,
+            antiseptique: 1,
+            tonique: 5
+        },
+        tags: ["médicinal", "mémoire", "longévité"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["anticoagulants"],
+        usages: {
+            "Médicinal": "Améliore la mémoire et la concentration."
+        },
+        mythology: "Arbre sacré en Asie, planté près des temples. Symbole de longévité et de résilience.",
+        chemicalCompounds: ["Flavonoïdes", "Terpénoïdes"]
+    },
+    {
+        id: 116,
+        name: "Ginseng",
+        latinName: "Panax ginseng",
+        description: "Plante vivace d'Asie dont la racine est en forme de corps humain. C'est le plus grand tonique général.",
+        properties: {
+            calmante: 2,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 5
+        },
+        tags: ["médicinal", "tonique", "longévité", "amour", "santé"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: ["hypertension", "enfants"],
+        usages: {
+            "Médicinal": "Asthénie physique et intellectuelle, stress.",
+            "Magique": "Porté pour attirer l'amour, la santé et la richesse."
+        },
+        mythology: "Son nom 'Panax' signifie 'remède universel'.",
+        chemicalCompounds: ["Ginsénosides", "Panaxanes", "Huiles essentielles"]
+    },
+    {
+        id: 117,
+        name: "Gotu Kola",
+        latinName: "Centella asiatica",
+        description: "Petite plante rampante de l'Inde, réputée pour améliorer la circulation et la mémoire.",
+        properties: {
+            calmante: 3,
+            digestive: 2,
+            antiseptique: 2,
+            tonique: 3
+        },
+        tags: ["médicinal", "mémoire", "longévité", "spiritualité"],
+        evidenceLevel: 3,
+        evidenceType: "traditionnel",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Améliore la circulation cérébrale, cicatrise les plaies.",
+            "Magique": "Pour la méditation et la clarté mentale."
+        },
+        mythology: "Réputée pour prolonger la vie des éléphants.",
+        chemicalCompounds: ["Asiaticoside", "Madecassicoside", "Gotu Kola"]
+    },
+    {
+        id: 118,
+        name: "Curcuma (Turmeric)",
+        latinName: "Curcuma longa",
+        description: "Rhizome tropical d'Asie du Sud-Est, au cœur de la cuisine et de la médecine ayurvédique.",
+        properties: {
+            calmante: 2,
+            digestive: 4,
+            antiseptique: 5,
+            tonique: 2
+        },
+        tags: ["culinaire", "médicinal", "anti-inflammatoire", "purification"],
+        evidenceLevel: 5,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Culinaire": "Épice pour les currys.",
+            "Médicinal": "Puissant anti-inflammatoire.",
+            "Magique": "Purification des énergies."
+        },
+        mythology: "Plante sacrée dans l'hindouïsisme, associée à la déesse Kali.",
+        chemicalCompounds: ["Curcumine", "Turmérone", "Zingiberène"]
+    },
+    {
+        id: 119,
+        name: "Neem",
+        latinName: "Azadirachta indica",
+        description: "Arbre tropical de l'Inde, surnommé 'la pharmacie du village'. Tous ses composés sont utilisés.",
+        properties: {
+            calmante: 1,
+            digestive: 2,
+            antiseptique: 5,
+            tonique: 1
+        },
+        tags: ["médicinal", "purification", "santé", "protection"],
+        evidenceLevel: 4,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Soins de la peau, antipaludéen.",
+            "Magique": "Brûlé pour purifier l'atmosphère."
+        },
+        mythology: "Arbre sacré dans la culture indienne.",
+        chemicalCompounds: ["Azadirachtine", "Nimbin", "Gedunin"]
+    },
+    {
+        id: 120,
+        name: "Rhodiola Rosea",
+        latinName: "Rhodiola rosea",
+        description: "Plante vivace des régions arctiques, surnommée 'racine d'or'. Puissant adaptogène.",
+        properties: {
+            calmante: 5,
+            digestive: 2,
+            antiseptique: 1,
+            tonique: 4
+        },
+        tags: ["médicinal", "adaptogène", "tonique", "stress"],
+        evidenceLevel: 3,
+        evidenceType: "scientifique",
+        contraindications: [],
+        usages: {
+            "Médicinal": "Combat le stress, la fatigue chronique.",
+            "Magique": "Pour accroître la force physique et psychique."
+        },
+        mythology: "Utilisée par les Vikings pour augmenter leur force et leur endurance.",
+        chemicalCompounds: ["Rosavine", "Salidroside", "Rosiridine"]
+    }
+];
+           
+        // --- Éléments du DOM ---
+        const gallery = document.getElementById('plant-gallery');
+        const searchInput = document.getElementById('search-input');
+        const modal = document.getElementById('plant-modal');
+        const modalBody = document.querySelector('.modal-body');
+        const closeBtn = document.querySelector('.close-btn');
+        const filterCheckboxes = document.querySelectorAll('.filter-option input[type="checkbox"]');
+        const viewBtns = document.querySelectorAll('.view-btn');
+        const viewSections = document.querySelectorAll('.view-section');
+        const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content-area');
+
+        // --- État de l'Application ---
+        let displayedPlants = [...plantsData];
+        let plantsToCompare = [];
+        let labPlants = JSON.parse(localStorage.getItem('phytoLab')) || [];
+        let currentView = 'gallery';
+
+        // --- Fonctions Principales ---
+        function renderPlants(plantsToRender, container = gallery) {
+            container.innerHTML = '';
+            if (plantsToRender.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; font-size: 1.5rem; color: var(--text-secondary);">Aucune plante ne correspond à votre recherche.</p>`;
+                return;
+            }
+            plantsToRender.forEach(plant => {
+                const card = createPlantCard(plant);
+                container.appendChild(card);
+            });
+        }
+        
+        function createPlantCard(plant) {
+            const card = document.createElement('div');
+            card.className = 'plant-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>${plant.name}</h3>
+                        <p>${plant.latinName}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="icon-btn compare-btn ${plantsToCompare.includes(plant.id) ? 'active' : ''}" data-id="${plant.id}" title="Ajouter à la comparaison">⚖️</button>
+                        <button class="icon-btn lab-btn ${labPlants.includes(plant.id) ? 'active' : ''}" data-id="${plant.id}" title="Ajouter/Retirer de mon Labo">🧪</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>${plant.description}</p>
+                    <div class="radar-chart-container">
+                        ${createRadarChart(plant.properties)}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="tags">
+                        ${plant.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('icon-btn')) {
+                    openModal(plant);
+                }
+            });
+            return card;
+        }
+
+        function createRadarChart(properties) {
+            const maxValue = 5; const size = 150; const center = size / 2; const radius = size / 2 - 10;
+            const keys = Object.keys(properties); const angleStep = (Math.PI * 2) / keys.length;
+            let points = ''; let gridLines = ''; let labels = '';
+            keys.forEach((key, i) => {
+                const angle = angleStep * i - Math.PI / 2; const value = properties[key];
+                const x = center + radius * (value / maxValue) * Math.cos(angle);
+                const y = center + radius * (value / maxValue) * Math.sin(angle);
+                points += `${x},${y} `;
+                const x_end = center + radius * Math.cos(angle);
+                const y_end = center + radius * Math.sin(angle);
+                gridLines += `<line x1="${center}" y1="${center}" x2="${x_end}" y2="${y_end}" stroke="rgba(255,255,255,0.1)" />`;
+                const label_x = center + (radius + 15) * Math.cos(angle);
+                const label_y = center + (radius + 15) * Math.sin(angle);
+                labels += `<text x="${label_x}" y="${label_y}" text-anchor="middle" fill="var(--text-secondary)" font-size="10">${key.substring(0, 4).toUpperCase()}</text>`;
+            });
+            return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><polygon points="${points.split(' ').map(p => { const [x, y] = p.split(',').map(Number); return `${center},${center} ${x},${y}`; }).join(' ')}" fill="none" stroke="rgba(255,255,255,0.05)" />${gridLines}<polygon points="${points}" fill="rgba(0, 212, 255, 0.2)" stroke="var(--accent-cyan)" stroke-width="2" />${labels}</svg>`;
+        }
+
+        function openModal(plant) {
+            let usagesHtml = '';
+            for (const category in plant.usages) { usagesHtml += `<li><strong>${category}:</strong> ${plant.usages[category]}</li>`; }
+            modalBody.innerHTML = `<h2>${plant.name}</h2><p class="latin-name">${plant.latinName}</p><div class="modal-section"><h3>Profil Analytique</h3><p>${plant.description}</p><p><strong>Composés principaux:</strong> ${plant.chemicalCompounds.join(', ')}</p></div><div class="modal-section"><h3>Niveau de Preuve Scientifique</h3><p>Type: ${plant.evidenceType === 'scientifique' ? 'Usage validé par la science' : 'Usage traditionnel et ethnobotanique'}</p><div class="evidence-bar"><div class="evidence-level" style="width: ${plant.evidenceLevel * 20}%"></div></div></div><div class="modal-section"><h3>Usages et Applications</h3><ul>${usagesHtml}</ul></div><div class="modal-section"><h3>Contre-indications</h3><p>${plant.contraindications.length > 0 ? plant.contraindications.map(ci => `• ${ci.replace('-', ' ')}`).join('<br>') : 'Aucune connue aux doses usuelles.'}</p></div><div class="modal-section"><h3>Mythologie & Symboles</h3><p>${plant.mythology}</p></div>`;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() { modal.style.display = 'none'; }
+        
+        function applyFilters() {
+            let filteredPlants = [...plantsData];
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm) {
+                filteredPlants = filteredPlants.filter(plant => plant.name.toLowerCase().includes(searchTerm) || plant.latinName.toLowerCase().includes(searchTerm) || plant.tags.some(tag => tag.toLowerCase().includes(searchTerm)) || plant.chemicalCompounds.some(comp => comp.toLowerCase().includes(searchTerm)));
+            }
+            const activeFilters = { properties: [], evidence: [], contraindications: [] };
+            filterCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const value = checkbox.value; const id = checkbox.id;
+                    if (id.startsWith('prop-')) activeFilters.properties.push(value);
+                    if (id.startsWith('evidence-')) activeFilters.evidence.push(value);
+                    if (id.startsWith('ci-')) activeFilters.contraindications.push(value);
+                }
+            });
+            if (activeFilters.properties.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.properties.some(prop => plant.tags.includes(prop))); }
+            if (activeFilters.evidence.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.evidence.includes(plant.evidenceType)); }
+            if (activeFilters.contraindications.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.contraindications.some(ci => plant.contraindications.includes(ci))); }
+            displayedPlants = filteredPlants; renderPlants(displayedPlants);
+        }
+        
+        function switchView(viewName) {
+            currentView = viewName;
+            viewSections.forEach(section => section.classList.remove('active'));
+            viewBtns.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${viewName}-view`).classList.add('active');
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+            if (viewName === 'comparison') renderComparisonView();
+            if (viewName === 'lab') renderLabView();
+        }
+
+        function createDetailCard(plant) {
+            let usagesHtml = '';
+            for (const category in plant.usages) { usagesHtml += `<li><strong>${category}:</strong> ${plant.usages[category]}</li>`; }
+            const card = document.createElement('div');
+            card.className = 'detail-card';
+            card.innerHTML = `<h2>${plant.name}</h2><p class="latin-name">${plant.latinName}</p><div class="detail-card-content"><div class="detail-section"><h3>Description</h3><p>${plant.description}</p></div><div class="detail-section"><h3>Propriétés & Vertus</h3><p>${Object.entries(plant.properties).map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}/5`).join(', ')}</p></div><div class="detail-section"><h3>Usages & Recettes</h3><ul>${usagesHtml}</ul></div><div class="detail-section"><h3>Mythologie & Symboles</h3><p>${plant.mythology}</p></div><div class="detail-section"><h3>Contre-indications</h3><p>${plant.contraindications.length > 0 ? plant.contraindications.map(ci => `• ${ci.replace('-', ' ')}`).join('<br>') : 'Aucune connue aux doses usuelles.'}</p></div><div class="detail-section"><h3>Composés chimiques</h3><p>${plant.chemicalCompounds.join(', ')}</p></div></div>`;
+            return card;
+        }
+
+        function renderComparisonView() {
+            const container = document.getElementById('comparison-container');
+            container.innerHTML = '';
+            if (plantsToCompare.length === 0) { container.innerHTML = '<div class="lab-placeholder">Sélectionnez des plantes dans la galerie pour les comparer ici.</div>'; return; }
+            plantsToCompare.forEach(id => { const plant = plantsData.find(p => p.id === id); if (plant) { container.appendChild(createDetailCard(plant)); } });
+        }
+        
+        function renderLabView() {
+            const container = document.getElementById('lab-container');
+            container.innerHTML = '';
+            if (labPlants.length === 0) { container.innerHTML = '<div class="lab-placeholder">Votre laboratoire est vide. Ajoutez des plantes pour commencer vos recherches.</div>'; return; }
+            labPlants.forEach(id => { const plant = plantsData.find(p => p.id === id); if (plant) { container.appendChild(createDetailCard(plant)); } });
+        }
+        
+        function updateCounts() {
+            document.getElementById('compare-count').textContent = plantsToCompare.length;
+            document.getElementById('lab-count').textContent = labPlants.length;
+        }
+
+        // --- Écouteurs d'Événements ---
+        searchInput.addEventListener('input', applyFilters);
+        filterCheckboxes.forEach(checkbox => checkbox.addEventListener('change', applyFilters));
+        closeBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (event) => { if (event.target == modal) closeModal(); });
+        toggleSidebarBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+        viewBtns.forEach(btn => { btn.addEventListener('click', () => switchView(btn.dataset.view)); });
+        mainContent.addEventListener('click', (e) => {
+            if (e.target.classList.contains('compare-btn')) {
+                e.stopPropagation(); const id = parseInt(e.target.dataset.id);
+                if (plantsToCompare.includes(id)) { plantsToCompare = plantsToCompare.filter(pId => pId !== id); e.target.classList.remove('active'); }
+                else if (plantsToCompare.length < 3) { plantsToCompare.push(id); e.target.classList.add('active'); }
+                else { alert('Comparaison limitée à 3 plantes.'); }
+                updateCounts(); if (currentView === 'comparison') renderComparisonView();
+            }
+            if (e.target.classList.contains('lab-btn')) {
+                e.stopPropagation(); const id = parseInt(e.target.dataset.id); const plant = plantsData.find(p => p.id === id);
+                if (labPlants.includes(id)) { labPlants = labPlants.filter(pId => pId !== id); e.target.classList.remove('active'); alert(`${plant.name} a été retiré de votre Labo.`); }
+                else { labPlants.push(id); e.target.classList.add('active'); alert(`${plant.name} a été ajouté à votre Labo.`); }
+                localStorage.setItem('phytoLab', JSON.stringify(labPlants)); updateCounts(); if (currentView === 'lab') renderLabView();
+            }
+        });
+
+        // --- Initialisation ---
+        document.addEventListener('DOMContentLoaded', () => { renderPlants(displayedPlants); updateCounts(); });
+    </script>
+</body>
+</html>
