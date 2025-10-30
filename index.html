@@ -77,17 +77,18 @@
         /* --- Main Layout --- */
         .app-container {
             display: flex;
-            min-height: calc(100vh - 70px); /* Adjust height for top header */
+            min-height: calc(100vh - 70px);
         }
 
         /* --- Sidebar --- */
         .sidebar {
-            flex: 0 0 280px;
+            flex: 0 0 320px;
             background-color: var(--bg-secondary);
             padding: 2rem;
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             transition: transform 0.3s ease;
+            max-height: calc(100vh - 70px);
         }
 
         .sidebar.collapsed {
@@ -113,6 +114,26 @@
             font-size: 1rem;
             margin-bottom: 1rem;
             color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-filter {
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--accent-cyan);
+        }
+
+        .filter-options {
+            max-height: 200px;
+            overflow-y: auto;
+            transition: max-height 0.3s ease;
+        }
+
+        .filter-options.collapsed {
+            max-height: 0;
+            overflow: hidden;
         }
 
         .filter-option {
@@ -130,6 +151,22 @@
         .filter-option label {
             cursor: pointer;
             font-size: 0.9rem;
+        }
+
+        .filter-search {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .filter-search:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
         }
 
         /* --- Main Content Area --- */
@@ -426,23 +463,65 @@
             <h2>Filtres Avancés</h2>
             
             <div class="filter-group">
-                <h3>Propriétés Principales</h3>
-                <div class="filter-option"><input type="checkbox" id="prop-calmante" value="calmante"><label for="prop-calmante">Calmante / Sédative</label></div>
-                <div class="filter-option"><input type="checkbox" id="prop-digestive" value="digestive"><label for="prop-digestive">Digestive</label></div>
-                <div class="filter-option"><input type="checkbox" id="prop-antiseptique" value="antiseptique"><label for="prop-antiseptique">Antiseptique</label></div>
-                <div class="filter-option"><input type="checkbox" id="prop-tonique" value="tonique"><label for="prop-tonique">Tonique / Stimulante</label></div>
+                <h3>Plantes <span class="toggle-filter" data-target="plant-filter">▼</span></h3>
+                <input type="text" class="filter-search" id="plant-search" placeholder="Rechercher une plante...">
+                <div class="filter-options" id="plant-filter">
+                    <!-- Les plantes seront générées ici par JavaScript -->
+                </div>
             </div>
 
             <div class="filter-group">
-                <h3>Niveau de Preuve</h3>
-                <div class="filter-option"><input type="checkbox" id="evidence-scientifique" value="scientifique"><label for="evidence-scientifique">Scientifique avéré</label></div>
-                <div class="filter-option"><input type="checkbox" id="evidence-traditionnel" value="traditionnel"><label for="evidence-traditionnel">Usage traditionnel</label></div>
+                <h3>Propriétés Principales <span class="toggle-filter" data-target="prop-filter">▼</span></h3>
+                <div class="filter-options" id="prop-filter">
+                    <div class="filter-option"><input type="checkbox" id="prop-calmante" value="calmante"><label for="prop-calmante">Calmante / Sédative</label></div>
+                    <div class="filter-option"><input type="checkbox" id="prop-digestive" value="digestive"><label for="prop-digestive">Digestive</label></div>
+                    <div class="filter-option"><input type="checkbox" id="prop-antiseptique" value="antiseptique"><label for="prop-antiseptique">Antiseptique</label></div>
+                    <div class="filter-option"><input type="checkbox" id="prop-tonique" value="tonique"><label for="prop-tonique">Tonique / Stimulante</label></div>
+                </div>
             </div>
 
             <div class="filter-group">
-                <h3>Contre-indications</h3>
-                <div class="filter-option"><input type="checkbox" id="ci-grossesse" value="grossesse"><label for="ci-grossesse">Grossesse</label></div>
-                <div class="filter-option"><input type="checkbox" id="ci-enfants" value="enfants"><label for="ci-enfants">Enfants</label></div>
+                <h3>Usages <span class="toggle-filter" data-target="usage-filter">▼</span></h3>
+                <div class="filter-options" id="usage-filter">
+                    <div class="filter-option"><input type="checkbox" id="usage-medicinal" value="médicinal"><label for="usage-medicinal">Médicinal</label></div>
+                    <div class="filter-option"><input type="checkbox" id="usage-culinaire" value="culinaire"><label for="usage-culinaire">Culinaire</label></div>
+                    <div class="filter-option"><input type="checkbox" id="usage-magique" value="magique"><label for="usage-magique">Magique / Spirituel</label></div>
+                    <div class="filter-option"><input type="checkbox" id="usage-cosmetique" value="cosmétique"><label for="usage-cosmetique">Cosmétique</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Composés Chimiques <span class="toggle-filter" data-target="compound-filter">▼</span></h3>
+                <input type="text" class="filter-search" id="compound-search" placeholder="Rechercher un composé...">
+                <div class="filter-options" id="compound-filter">
+                    <!-- Les composés seront générés ici par JavaScript -->
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Niveau de Preuve <span class="toggle-filter" data-target="evidence-filter">▼</span></h3>
+                <div class="filter-options" id="evidence-filter">
+                    <div class="filter-option"><input type="checkbox" id="evidence-scientifique" value="scientifique"><label for="evidence-scientifique">Scientifique avéré</label></div>
+                    <div class="filter-option"><input type="checkbox" id="evidence-traditionnel" value="traditionnel"><label for="evidence-traditionnel">Usage traditionnel</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Contre-indications <span class="toggle-filter" data-target="ci-filter">▼</span></h3>
+                <div class="filter-options" id="ci-filter">
+                    <div class="filter-option"><input type="checkbox" id="ci-grossesse" value="grossesse"><label for="ci-grossesse">Grossesse</label></div>
+                    <div class="filter-option"><input type="checkbox" id="ci-enfants" value="enfants"><label for="ci-enfants">Enfants</label></div>
+                    <div class="filter-option"><input type="checkbox" id="ci-toxique" value="toxique"><label for="ci-toxique">Toxique</label></div>
+                    <div class="filter-option"><input type="checkbox" id="ci-allergie" value="allergie"><label for="ci-allergie">Allergies</label></div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Tags <span class="toggle-filter" data-target="tag-filter">▼</span></h3>
+                <input type="text" class="filter-search" id="tag-search" placeholder="Rechercher un tag...">
+                <div class="filter-options" id="tag-filter">
+                    <!-- Les tags seront générés ici par JavaScript -->
+                </div>
             </div>
         </aside>
 
@@ -3144,7 +3223,7 @@
             "Médicinal": "Puissant anti-inflammatoire.",
             "Magique": "Purification des énergies."
         },
-        mythology: "Plante sacrée dans l'hindouïsisme, associée à la déesse Kali.",
+        mythology: "Plante sacrée dans l'hindouïsme, associée à la déesse Kali.",
         chemicalCompounds: ["Curcumine", "Turmérone", "Zingiberène"]
     },
     {
@@ -3199,7 +3278,6 @@
         const modal = document.getElementById('plant-modal');
         const modalBody = document.querySelector('.modal-body');
         const closeBtn = document.querySelector('.close-btn');
-        const filterCheckboxes = document.querySelectorAll('.filter-option input[type="checkbox"]');
         const viewBtns = document.querySelectorAll('.view-btn');
         const viewSections = document.querySelectorAll('.view-section');
         const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
@@ -3291,21 +3369,88 @@
             let filteredPlants = [...plantsData];
             const searchTerm = searchInput.value.toLowerCase();
             if (searchTerm) {
-                filteredPlants = filteredPlants.filter(plant => plant.name.toLowerCase().includes(searchTerm) || plant.latinName.toLowerCase().includes(searchTerm) || plant.tags.some(tag => tag.toLowerCase().includes(searchTerm)) || plant.chemicalCompounds.some(comp => comp.toLowerCase().includes(searchTerm)));
+                filteredPlants = filteredPlants.filter(plant => 
+                    plant.name.toLowerCase().includes(searchTerm) || 
+                    plant.latinName.toLowerCase().includes(searchTerm) || 
+                    plant.tags.some(tag => tag.toLowerCase().includes(searchTerm)) || 
+                    plant.chemicalCompounds.some(comp => comp.toLowerCase().includes(searchTerm))
+                );
             }
-            const activeFilters = { properties: [], evidence: [], contraindications: [] };
-            filterCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    const value = checkbox.value; const id = checkbox.id;
-                    if (id.startsWith('prop-')) activeFilters.properties.push(value);
-                    if (id.startsWith('evidence-')) activeFilters.evidence.push(value);
-                    if (id.startsWith('ci-')) activeFilters.contraindications.push(value);
-                }
+            
+            // Récupérer tous les filtres actifs
+            const activeFilters = { 
+                properties: [], 
+                evidence: [], 
+                contraindications: [], 
+                usages: [], 
+                plants: [], 
+                compounds: [], 
+                tags: [] 
+            };
+            
+            // Parcourir toutes les checkboxes
+            document.querySelectorAll('.filter-option input[type="checkbox"]:checked').forEach(checkbox => {
+                const value = checkbox.value; 
+                const id = checkbox.id;
+                if (id.startsWith('prop-')) activeFilters.properties.push(value);
+                if (id.startsWith('evidence-')) activeFilters.evidence.push(value);
+                if (id.startsWith('ci-')) activeFilters.contraindications.push(value);
+                if (id.startsWith('usage-')) activeFilters.usages.push(value);
+                if (id.startsWith('plant-')) activeFilters.plants.push(value);
+                if (id.startsWith('compound-')) activeFilters.compounds.push(value);
+                if (id.startsWith('tag-')) activeFilters.tags.push(value);
             });
-            if (activeFilters.properties.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.properties.some(prop => plant.tags.includes(prop))); }
-            if (activeFilters.evidence.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.evidence.includes(plant.evidenceType)); }
-            if (activeFilters.contraindications.length > 0) { filteredPlants = filteredPlants.filter(plant => activeFilters.contraindications.some(ci => plant.contraindications.includes(ci))); }
-            displayedPlants = filteredPlants; renderPlants(displayedPlants);
+            
+            // Appliquer les filtres
+            if (activeFilters.properties.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => 
+                    activeFilters.properties.some(prop => plant.properties[prop] >= 3)
+                ); 
+            }
+            if (activeFilters.evidence.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => 
+                    activeFilters.evidence.includes(plant.evidenceType)
+                ); 
+            }
+            if (activeFilters.contraindications.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => 
+                    activeFilters.contraindications.some(ci => 
+                        plant.contraindications.some(plantCi => 
+                            plantCi.toLowerCase().includes(ci.toLowerCase())
+                        )
+                    )
+                ); 
+            }
+            if (activeFilters.usages.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => {
+                    for (const usage in plant.usages) {
+                        if (activeFilters.usages.includes(usage.toLowerCase())) return true;
+                    }
+                    return false;
+                });
+            }
+            if (activeFilters.plants.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => 
+                    activeFilters.plants.includes(plant.name.toLowerCase())
+                ); 
+            }
+            if (activeFilters.compounds.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => {
+                    return activeFilters.compounds.some(comp => 
+                        plant.chemicalCompounds.some(plantComp => 
+                            plantComp.toLowerCase().includes(comp.toLowerCase())
+                        )
+                    );
+                });
+            }
+            if (activeFilters.tags.length > 0) { 
+                filteredPlants = filteredPlants.filter(plant => 
+                    activeFilters.tags.some(tag => plant.tags.includes(tag))
+                ); 
+            }
+            
+            displayedPlants = filteredPlants; 
+            renderPlants(displayedPlants);
         }
         
         function switchView(viewName) {
@@ -3346,9 +3491,95 @@
             document.getElementById('lab-count').textContent = labPlants.length;
         }
 
+        // --- Initialisation des filtres dynamiques ---
+        function initializeFilters() {
+            // Création des filtres de plantes
+            const plantFilter = document.getElementById('plant-filter');
+            const plantSearch = document.getElementById('plant-search');
+            const sortedPlants = [...plantsData].sort((a, b) => a.name.localeCompare(b.name));
+            
+            sortedPlants.forEach(plant => {
+                const option = document.createElement('div');
+                option.className = 'filter-option';
+                option.innerHTML = `<input type="checkbox" id="plant-${plant.id}" value="${plant.name.toLowerCase()}"><label for="plant-${plant.id}">${plant.name}</label>`;
+                plantFilter.appendChild(option);
+            });
+            
+            // Création des filtres de composés chimiques
+            const compoundFilter = document.getElementById('compound-filter');
+            const compoundSearch = document.getElementById('compound-search');
+            const allCompounds = new Set();
+            plantsData.forEach(plant => {
+                plant.chemicalCompounds.forEach(compound => allCompounds.add(compound));
+            });
+            
+            const sortedCompounds = Array.from(allCompounds).sort();
+            sortedCompounds.forEach(compound => {
+                const option = document.createElement('div');
+                option.className = 'filter-option';
+                option.innerHTML = `<input type="checkbox" id="compound-${compound.replace(/\s+/g, '-').toLowerCase()}" value="${compound.toLowerCase()}"><label for="compound-${compound.replace(/\s+/g, '-').toLowerCase()}">${compound}</label>`;
+                compoundFilter.appendChild(option);
+            });
+            
+            // Création des filtres de tags
+            const tagFilter = document.getElementById('tag-filter');
+            const tagSearch = document.getElementById('tag-search');
+            const allTags = new Set();
+            plantsData.forEach(plant => {
+                plant.tags.forEach(tag => allTags.add(tag));
+            });
+            
+            const sortedTags = Array.from(allTags).sort();
+            sortedTags.forEach(tag => {
+                const option = document.createElement('div');
+                option.className = 'filter-option';
+                option.innerHTML = `<input type="checkbox" id="tag-${tag.replace(/\s+/g, '-').toLowerCase()}" value="${tag.toLowerCase()}"><label for="tag-${tag.replace(/\s+/g, '-').toLowerCase()}">${tag}</label>`;
+                tagFilter.appendChild(option);
+            });
+            
+            // Fonctionnalité de recherche dans les filtres
+            plantSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                Array.from(plantFilter.children).forEach(option => {
+                    const label = option.querySelector('label').textContent.toLowerCase();
+                    option.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+            
+            compoundSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                Array.from(compoundFilter.children).forEach(option => {
+                    const label = option.querySelector('label').textContent.toLowerCase();
+                    option.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+            
+            tagSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                Array.from(tagFilter.children).forEach(option => {
+                    const label = option.querySelector('label').textContent.toLowerCase();
+                    option.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+            
+            // Fonctionnalité de repli/dépli des filtres
+            document.querySelectorAll('.toggle-filter').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const targetId = toggle.getAttribute('data-target');
+                    const targetElement = document.getElementById(targetId);
+                    targetElement.classList.toggle('collapsed');
+                    toggle.textContent = targetElement.classList.contains('collapsed') ? '▶' : '▼';
+                });
+            });
+            
+            // Ajouter les écouteurs d'événements à toutes les checkboxes
+            document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', applyFilters);
+            });
+        }
+
         // --- Écouteurs d'Événements ---
         searchInput.addEventListener('input', applyFilters);
-        filterCheckboxes.forEach(checkbox => checkbox.addEventListener('change', applyFilters));
         closeBtn.addEventListener('click', closeModal);
         window.addEventListener('click', (event) => { if (event.target == modal) closeModal(); });
         toggleSidebarBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
@@ -3370,7 +3601,11 @@
         });
 
         // --- Initialisation ---
-        document.addEventListener('DOMContentLoaded', () => { renderPlants(displayedPlants); updateCounts(); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            initializeFilters();
+            renderPlants(displayedPlants); 
+            updateCounts(); 
+        });
     </script>
 </body>
 </html>
